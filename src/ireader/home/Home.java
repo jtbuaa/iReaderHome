@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -39,6 +40,13 @@ public class Home extends Activity {
         mAppListAdapter = new AppListAdapter(this, mAllApps);
         mAppListView = (ListView) findViewById(R.id.apps);
         mAppListView.setAdapter(mAppListAdapter);
+
+        // for package add/remove
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        registerReceiver(packageReceiver, filter);
     }
 
     private void getAllApp() {
@@ -81,8 +89,15 @@ public class Home extends Activity {
                     }
                 }
             }
+            mAppListAdapter.notifyDataSetChanged();
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(packageReceiver);
+        super.onDestroy();
+    }
 
     private class ViewHolder {
         RelativeLayout appItem;
@@ -140,7 +155,9 @@ public class Home extends Activity {
                 i.setComponent(new ComponentName(info.activityInfo.applicationInfo.packageName,
                         info.activityInfo.name));
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Home.this.startActivity(i);
+                try {
+                    startActivity(i);
+                } catch(ActivityNotFoundException e) {}
             }
         };
     }
