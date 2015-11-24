@@ -13,17 +13,18 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-public class FloatService extends Service {
+public abstract class FloatService extends Service {
 
     WindowManager windowManager;
     public DisplayMetrics dm;
-    public int MIN_WIDTH = 96;
+    public int MIN_WIDTH = 50;
     public boolean fixedWidth = false;
     public FrameLayout container;
     public Activity activity;
@@ -34,11 +35,8 @@ public class FloatService extends Service {
 
     public Handler handler = new Handler();
 
-    public void onFingerDown() {
-    }
-
-    public void onFingerUp() {
-    }
+    abstract void onFingerDown();
+    abstract void onFingerUp(float dx, float dy);
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -70,14 +68,14 @@ public class FloatService extends Service {
         if (fixedWidth)
             width = MIN_WIDTH;
         else {
-            width = sp.getInt("layout_width", 400); // default width 400
+            width = sp.getInt("layout_width", MIN_WIDTH);
             if (width < MIN_WIDTH)
                 width = MIN_WIDTH;
         }
         if (width * dm.density > dm.widthPixels)
             width = (int) (dm.widthPixels / dm.density);
 
-        int height = sp.getInt("layout_height", 50);
+        int height = sp.getInt("layout_height", MIN_WIDTH);
         params = new WindowManager.LayoutParams(
                 ((int) (width * dm.density)), // not 320 here is to leave blank edge of both side
                 ((int) (height * dm.density)), // if width and height are 0, hierarchyviewer will crash when get layout. but 0 is no use to our display
@@ -140,7 +138,7 @@ public class FloatService extends Service {
                         sEdit.putInt("layout_y", location[1]);// - statusBarHeight); // no statusbar if play video in fullscreen mode.
                         sEdit.putInt("layout_width", (int) (paramsF.width / dm.density));
                         sEdit.apply();
-                        onFingerUp();
+                        onFingerUp(event.getRawX() - initialTouchX, event.getRawY() - initialTouchY);
                     case MotionEvent.ACTION_POINTER_UP:
                         break;
                     case MotionEvent.ACTION_MOVE:

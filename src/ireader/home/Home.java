@@ -49,6 +49,12 @@ public class Home extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        startService(new Intent(this, Dragger.class));
+        super.onPause();
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getRepeatCount() == 0) {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
