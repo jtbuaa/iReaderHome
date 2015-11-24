@@ -2,17 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/app_item"
     android:layout_width="fill_parent"
-    android:layout_height="60dip"
+    android:layout_height="120dip"
     android:orientation="horizontal"
-    android:paddingLeft="5dip"
-    android:paddingRight="5dip"
+    android:paddingLeft="50dip"
+    android:paddingRight="50dip"
     android:shrinkColumns="2"
     android:stretchColumns="2" >
 
     <ImageView
         android:id="@+id/app_icon"
-        android:layout_width="40dip"
-        android:layout_height="40dip"
+        android:layout_width="80dip"
+        android:layout_height="80dip"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:focusable="true"
@@ -39,7 +39,7 @@
             android:lines="1"
             android:maxLines="1"
             android:textColor="#ffaaaaaa"
-            android:textSize="12sp" />
+            android:textSize="24sp" />
 
         <TextView
             android:id="@+id/package_name"
@@ -53,7 +53,7 @@
             android:lines="1"
             android:maxLines="1"
             android:textColor="#ffcccccc"
-            android:textSize="12sp" />
+            android:textSize="24sp" />
     </LinearLayout>
 
     <TextView
@@ -61,10 +61,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="5dip"
+        android:layout_marginLeft="50dip"
         android:layout_toRightOf="@id/app_icon"
         android:singleLine="true"
         android:textColor="#FF000000"
-        android:textSize="18sp" />
+        android:textSize="32sp" />
 
 </RelativeLayout>
