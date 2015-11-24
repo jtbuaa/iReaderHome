@@ -82,6 +82,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
                 mContext.startActivity(i);
+                mContext.startService(new Intent(mContext, Dragger.class));
             } catch(ActivityNotFoundException e) {}
         }
     };
