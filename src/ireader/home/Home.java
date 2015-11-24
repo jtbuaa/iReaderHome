@@ -1,5 +1,6 @@
 package ireader.home;
 
+import java.util.Collections;
 import java.util.List;
 
 import android.app.Activity;
@@ -69,6 +70,7 @@ public class Home extends Activity {
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         mAllApps = getPackageManager().queryIntentActivities(mainIntent, 0);
         removeInfo(getComponentName().getPackageName());
+        Collections.sort(mAllApps, new StringComparator(getPackageManager()));// sort by name
     }
 
     private ResolveInfo removeInfo(String packageName) {
