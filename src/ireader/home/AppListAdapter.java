@@ -50,15 +50,13 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
             holder.versionName = (TextView) convertView.findViewById(R.id.version_name);
             holder.packageName = (TextView) convertView.findViewById(R.id.package_name);
             convertView.setTag(holder);
+            convertView.setOnClickListener(clickListener);
         } else {
             holder = (ViewHolder)convertView.getTag();
         }
         holder.info = (ResolveInfo) localApplist.get(position);
-        holder.appItem.setOnClickListener(clickListener);
         holder.appIcon.setImageDrawable(holder.info.loadIcon(mPm));
-        holder.appIcon.setOnClickListener(clickListener);
         holder.appName.setText(holder.info.loadLabel(mPm).toString());
-        holder.appName.setOnClickListener(clickListener);
         holder.packageName.setText(holder.info.activityInfo.packageName);
         try {
             String version = mPm.getPackageInfo(holder.info.activityInfo.packageName, 0).versionName;
@@ -75,7 +73,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
     OnClickListener clickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
-            ViewHolder holder = (ViewHolder) ((View) view.getParent()).getTag();
+            ViewHolder holder = (ViewHolder)view.getTag();
             if (holder == null) {
                 return;
             }

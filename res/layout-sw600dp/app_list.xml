@@ -3,11 +3,10 @@
     android:id="@+id/app_item"
     android:layout_width="fill_parent"
     android:layout_height="120dip"
+    android:clickable="true"
     android:orientation="horizontal"
     android:paddingLeft="50dip"
-    android:paddingRight="50dip"
-    android:shrinkColumns="2"
-    android:stretchColumns="2" >
+    android:paddingRight="50dip" >
 
     <ImageView
         android:id="@+id/app_icon"
@@ -61,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="50dip"
+        android:paddingLeft="50dip"
         android:layout_toRightOf="@id/app_icon"
         android:singleLine="true"
         android:textColor="#FF000000"
