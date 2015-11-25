@@ -88,19 +88,26 @@ public class Home extends Activity {
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         mAllApps = mPm.queryIntentActivities(mainIntent, 0);
-        prepareInfo(getComponentName().getPackageName(), true);
+        removeInfo(getComponentName().getPackageName());
+        prepareInfo();
         Collections.sort(mAllApps, new StringComparator());// sort by name
     }
 
-    private void prepareInfo(String packageName, boolean loadLabel) {
+    private void removeInfo(String packageName) {
         for (int i = 0; i < mAllApps.size(); i++) {
             ResolveInfo info = mAllApps.get(i);
             if (info.activityInfo.packageName.equals(packageName)) {
                 mAllApps.remove(i);
-            } else if (loadLabel) {
-                // borrow the dataDir to store label, for loadLabel() is very time consuming
-                info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
+                break;
             }
+        }
+    }
+
+    private void prepareInfo() {
+        for (int i = 0; i < mAllApps.size(); i++) {
+            ResolveInfo info = mAllApps.get(i);
+            // borrow the dataDir to store label, for loadLabel() is very time consuming
+            info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
         }
     }
 
@@ -110,7 +117,8 @@ public class Home extends Activity {
             String action = intent.getAction();
             String packageName = intent.getDataString().split(":")[1];
             if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
-                prepareInfo(packageName, false);
+                removeInfo(packageName);
+                mAppListAdapter.notifyDataSetChanged();
             } else if (action.equals(Intent.ACTION_PACKAGE_ADDED)) {
                 Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
                 mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -120,12 +128,14 @@ public class Home extends Activity {
                 for (int i = 0; i < targetApps.size(); i++) {
                     ResolveInfo info = targetApps.get(i);
                     if (info.activityInfo.packageName.equals(packageName)) {
+                        info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
                         mAllApps.add(info);
+                        Collections.sort(mAllApps, new StringComparator());// sort by name
+                        mAppListAdapter.notifyDataSetChanged();
                         break;
                     }
                 }
             }
-            mAppListAdapter.notifyDataSetChanged();
         }
     };
 
