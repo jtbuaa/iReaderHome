@@ -3,7 +3,10 @@ package ireader.home;
 import java.util.Collections;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,10 +38,13 @@ public class Home extends Activity {
         filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         filter.addDataScheme("package");
         registerReceiver(packageReceiver, filter);
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onDestroy() {
+        EventBus.getDefault().unregister(this);
         unregisterReceiver(packageReceiver);
         super.onDestroy();
     }
@@ -53,10 +59,21 @@ public class Home extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getRepeatCount() == 0) {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
+                if (mIntent != null) {
+                    try {
+                        startActivity(mIntent);
+                        startService(new Intent(Home.this, Dragger.class));
+                    } catch(ActivityNotFoundException e) {}
+                }
                 return true;
             }
         }
         return false;
+    }
+
+    Intent mIntent;
+    public void onEventMainThread(Intent intent) {
+        mIntent = intent;
     }
 
     private void getAllApp() {

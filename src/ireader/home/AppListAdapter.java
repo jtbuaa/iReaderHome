@@ -3,6 +3,8 @@ package ireader.home;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -84,6 +86,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
             intent.setComponent(new ComponentName(holder.info.activityInfo.applicationInfo.packageName,
                     holder.info.activityInfo.name));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            EventBus.getDefault().post(intent);
             try {
                 mContext.startActivity(intent);
                 mContext.startService(new Intent(mContext, Dragger.class));
