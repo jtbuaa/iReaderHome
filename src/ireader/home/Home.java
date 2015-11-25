@@ -14,7 +14,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.os.Debug;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ListView;
@@ -30,7 +29,6 @@ public class Home extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Debug.startMethodTracing("iread");
         setContentView(R.layout.main);
         getAllApp();
         mAppListAdapter = new AppListAdapter(this, mAllApps);
@@ -48,7 +46,6 @@ public class Home extends Activity {
         registerReceiver(packageReceiver, filter);
 
         EventBus.getDefault().register(this);
-        Debug.stopMethodTracing();
     }
 
     @Override
