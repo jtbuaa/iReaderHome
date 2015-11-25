@@ -15,7 +15,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 public class Home extends Activity {
 
@@ -31,7 +33,10 @@ public class Home extends Activity {
         getAllApp();
         mAppListAdapter = new AppListAdapter(this, mAllApps);
         mAppListView = (ListView) findViewById(R.id.apps);
+        mAppListView.setVisibility(View.VISIBLE);
         mAppListView.setAdapter(mAppListAdapter);
+        ProgressBar pbar = (ProgressBar) findViewById(R.id.loading);
+        pbar.setVisibility(View.GONE);
 
         // for package add/remove
         IntentFilter filter = new IntentFilter();
