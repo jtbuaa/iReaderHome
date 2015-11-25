@@ -13,7 +13,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -24,7 +23,7 @@ public abstract class FloatService extends Service {
 
     WindowManager windowManager;
     public DisplayMetrics dm;
-    public int MIN_WIDTH = 50;
+    public int MIN_WIDTH = 100;
     public boolean fixedWidth = false;
     public FrameLayout container;
     public Activity activity;
@@ -58,8 +57,9 @@ public abstract class FloatService extends Service {
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         dm = new DisplayMetrics();
-
         windowManager.getDefaultDisplay().getMetrics(dm);
+        if (dm.density > 1)
+            MIN_WIDTH = 50;
         container = new FrameLayout(this);
 
         sp = PreferenceManager.getDefaultSharedPreferences(this);
