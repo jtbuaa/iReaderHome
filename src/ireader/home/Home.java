@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -76,23 +77,26 @@ public class Home extends Activity {
         mIntent = intent;
     }
 
+    PackageManager mPm;
     private void getAllApp() {
+        mPm = getPackageManager();
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        mAllApps = getPackageManager().queryIntentActivities(mainIntent, 0);
-        removeInfo(getComponentName().getPackageName());
-        Collections.sort(mAllApps, new StringComparator(getPackageManager()));// sort by name
+        mAllApps = mPm.queryIntentActivities(mainIntent, 0);
+        prepareInfo(getComponentName().getPackageName(), true);
+        Collections.sort(mAllApps, new StringComparator());// sort by name
     }
 
-    private ResolveInfo removeInfo(String packageName) {
+    private void prepareInfo(String packageName, boolean loadLabel) {
         for (int i = 0; i < mAllApps.size(); i++) {
             ResolveInfo info = mAllApps.get(i);
             if (info.activityInfo.packageName.equals(packageName)) {
                 mAllApps.remove(i);
-                return info;
+            } else if (loadLabel) {
+                // borrow the dataDir to store label, for loadLabel() is very time consuming
+                info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
             }
         }
-        return null;
     }
 
     BroadcastReceiver packageReceiver = new BroadcastReceiver() {
@@ -101,12 +105,12 @@ public class Home extends Activity {
             String action = intent.getAction();
             String packageName = intent.getDataString().split(":")[1];
             if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
-                ResolveInfo info = removeInfo(packageName);
+                prepareInfo(packageName, false);
             } else if (action.equals(Intent.ACTION_PACKAGE_ADDED)) {
                 Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
                 mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
                 mainIntent.setPackage(packageName);
-                List<ResolveInfo> targetApps = getPackageManager().queryIntentActivities(mainIntent, 0);
+                List<ResolveInfo> targetApps = mPm.queryIntentActivities(mainIntent, 0);
                 // the new package may not support launcher. so filter it first
                 for (int i = 0; i < targetApps.size(); i++) {
                     ResolveInfo info = targetApps.get(i);

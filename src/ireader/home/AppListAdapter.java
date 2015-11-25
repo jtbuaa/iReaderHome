@@ -28,7 +28,6 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
     PackageManager mPm;
 
     private class ViewHolder {
-        RelativeLayout appItem;
         TextView appName, versionName, packageName;
         ImageView appIcon;
         ResolveInfo info;
@@ -47,7 +46,6 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
         if (convertView == null) {
             convertView = ((Activity) mContext).getLayoutInflater().inflate(R.layout.app_list, parent, false);
             holder = new ViewHolder();
-            holder.appItem = (RelativeLayout) convertView.findViewById(R.id.app_item);
             holder.appIcon = (ImageView) convertView.findViewById(R.id.app_icon);
             holder.appName = (TextView) convertView.findViewById(R.id.app_name);
             holder.versionName = (TextView) convertView.findViewById(R.id.version_name);
@@ -61,7 +59,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
         }
         holder.info = (ResolveInfo) localApplist.get(position);
         holder.appIcon.setImageDrawable(holder.info.loadIcon(mPm));
-        holder.appName.setText(holder.info.loadLabel(mPm).toString());
+        holder.appName.setText(holder.info.activityInfo.applicationInfo.dataDir);
         holder.packageName.setText(holder.info.activityInfo.packageName);
         try {
             String version = mPm.getPackageInfo(holder.info.activityInfo.packageName, 0).versionName;
