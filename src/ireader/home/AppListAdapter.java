@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -51,6 +52,8 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
             holder.packageName = (TextView) convertView.findViewById(R.id.package_name);
             convertView.setTag(holder);
             convertView.setOnClickListener(clickListener);
+            holder.versionName.setTag(holder);
+            holder.versionName.setOnClickListener(uninstallClickListener);
         } else {
             holder = (ViewHolder)convertView.getTag();
         }
@@ -77,13 +80,28 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
             if (holder == null) {
                 return;
             }
-            Intent i = new Intent(Intent.ACTION_MAIN);
-            i.setComponent(new ComponentName(holder.info.activityInfo.applicationInfo.packageName,
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.setComponent(new ComponentName(holder.info.activityInfo.applicationInfo.packageName,
                     holder.info.activityInfo.name));
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
-                mContext.startActivity(i);
+                mContext.startActivity(intent);
                 mContext.startService(new Intent(mContext, Dragger.class));
+            } catch(ActivityNotFoundException e) {}
+        }
+    };
+
+    OnClickListener uninstallClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            ViewHolder holder = (ViewHolder)view.getTag();
+            if (holder == null) {
+                return;
+            }
+            Uri uri = Uri.fromParts("package", holder.info.activityInfo.packageName , null);
+            Intent intent = new Intent(Intent.ACTION_DELETE, uri);
+            try {
+                mContext.startActivity(intent);
             } catch(ActivityNotFoundException e) {}
         }
     };
