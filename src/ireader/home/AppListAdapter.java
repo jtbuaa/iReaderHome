@@ -76,7 +76,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
         @Override
         public void onClick(View view) {
             ViewHolder holder = (ViewHolder)view.getTag();
-            if (holder == null) {
+            if (holder == null || ((Activity) mContext).getComponentName().getPackageName().equals(holder.info.activityInfo.applicationInfo.packageName)) {
                 return;
             }
             Intent intent = new Intent(Intent.ACTION_MAIN);

@@ -8,6 +8,7 @@
         android:targetSdkVersion="21" />
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -31,7 +32,14 @@
 
         <service
             android:name=".Dragger"
+            android:process=":dragger"
             android:exported="false" />
+
+        <receiver android:name=".BootupMonitor" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 
