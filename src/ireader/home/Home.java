@@ -89,7 +89,9 @@ public class Home extends Activity {
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         mAllApps = mPm.queryIntentActivities(mainIntent, 0);
         removeInfo(getComponentName().getPackageName());
-        prepareInfo();
+        for (int i = 0; i < mAllApps.size(); i++) {
+            prepareInfo(mAllApps.get(i));
+        }
         Collections.sort(mAllApps, new StringComparator());// sort by name
     }
 
@@ -103,11 +105,15 @@ public class Home extends Activity {
         }
     }
 
-    private void prepareInfo() {
-        for (int i = 0; i < mAllApps.size(); i++) {
-            ResolveInfo info = mAllApps.get(i);
-            // borrow the dataDir to store label, for loadLabel() is very time consuming
-            info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
+    HanziToPinyin mTo = HanziToPinyin.getInstance();
+    private void prepareInfo(ResolveInfo info) {
+        // borrow the dataDir to store label, for loadLabel() is very time consuming
+        info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
+        if (info.activityInfo.applicationInfo.dataDir.length() < 1) {
+            info.activityInfo.applicationInfo.dataDir = " ";
+            info.activityInfo.applicationInfo.nativeLibraryDir = " ";
+        } else {
+            info.activityInfo.applicationInfo.nativeLibraryDir = mTo.getToken(info.activityInfo.applicationInfo.dataDir.charAt(0)).target;
         }
     }
 
@@ -128,7 +134,7 @@ public class Home extends Activity {
                 for (int i = 0; i < targetApps.size(); i++) {
                     ResolveInfo info = targetApps.get(i);
                     if (info.activityInfo.packageName.equals(packageName)) {
-                        info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
+                        prepareInfo(info);
                         mAllApps.add(info);
                         Collections.sort(mAllApps, new StringComparator());// sort by name
                         mAppListAdapter.notifyDataSetChanged();
