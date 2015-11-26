@@ -28,7 +28,7 @@ import android.widget.ProgressBar;
 public class Home extends Activity {
 
     List<ResolveInfo> mTmpAllApps, mAllApps;
-    private static final int MIN_SIZE = 10;
+    private static final int MIN_SIZE = 20;
     ListView mAppListView;
     AppListAdapter mAppListAdapter;
 
@@ -107,24 +107,14 @@ public class Home extends Activity {
         for (int i = 0; i < mAllApps.size(); i++) {
             prepareInfo(mAllApps.get(i));
         }
-        removeInfo(getComponentName().getPackageName());
-        Collections.sort(mAllApps, new StringComparator());// sort by name
 
         if (mTmpAllApps != null && mTmpAllApps.size() > 0) {
             new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
-                    ResolveInfo self = null;
-                    String packageName = getComponentName().getPackageName();
                     for (int i = 0; i < mTmpAllApps.size(); i++) {
-                        ResolveInfo info = mTmpAllApps.get(i);
-                        if (info.activityInfo.packageName.equals(packageName)) {
-                            self = info;
-                        } else {
-                            prepareInfo(info);
-                        }
+                        prepareInfo(mTmpAllApps.get(i));
                     }
-                    mTmpAllApps.remove(self);
                     mHandler.sendEmptyMessage(0);
                     return null;
                 }
