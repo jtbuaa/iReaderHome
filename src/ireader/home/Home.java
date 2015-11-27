@@ -98,14 +98,16 @@ public class Home extends Activity {
         if (mTmpAllApps.size() <= MIN_SIZE) {
             mAllApps = mTmpAllApps;
             mTmpAllApps = null;
+            for (int i = 0; i < mAllApps.size(); i++) {
+                prepareInfo(mAllApps.get(i));
+            }
+            Collections.sort(mAllApps, new StringComparator());// sort by name
         } else {
             mAllApps = new ArrayList<ResolveInfo>();
             for (int i = 0; i < MIN_SIZE; i++) {
                 mAllApps.add(mTmpAllApps.remove(i));
+                prepareInfo(mAllApps.get(i));
             }
-        }
-        for (int i = 0; i < mAllApps.size(); i++) {
-            prepareInfo(mAllApps.get(i));
         }
 
         if (mTmpAllApps != null && mTmpAllApps.size() > 0) {
