@@ -17,9 +17,7 @@ import android.content.pm.ResolveInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ListView;
@@ -27,10 +25,11 @@ import android.widget.ProgressBar;
 
 public class Home extends Activity {
 
-    List<ResolveInfo> mTmpAllApps, mAllApps;
+    private List<ResolveInfo> mTmpAllApps, mAllApps;
     private static final int MIN_SIZE = 20;
-    ListView mAppListView;
-    AppListAdapter mAppListAdapter;
+    private ListView mAppListView;
+    private AppListAdapter mAppListAdapter;
+    private UidDetailProvider mUidDetailProvider;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,7 +37,8 @@ public class Home extends Activity {
 
         setContentView(R.layout.main);
         getAllApp();
-        mAppListAdapter = new AppListAdapter(this, mAllApps);
+        mUidDetailProvider = new UidDetailProvider(this);
+        mAppListAdapter = new AppListAdapter(this, mUidDetailProvider, mAllApps);
         mAppListView = (ListView) findViewById(R.id.apps);
         mAppListView.setVisibility(View.VISIBLE);
         mAppListView.setAdapter(mAppListAdapter);
@@ -111,6 +111,7 @@ public class Home extends Activity {
         }
 
         if (mTmpAllApps != null && mTmpAllApps.size() > 0) {
+            // use AsyncTask to handle more data
             new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
