@@ -2,9 +2,13 @@ package ireader.home;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.way.plistview.BladeView;
 import com.way.plistview.PinnedHeaderListView;
+import com.way.plistview.BladeView.OnItemClickListener;
 
 import de.greenrobot.event.EventBus;
 
@@ -30,12 +34,15 @@ public class Home extends Activity {
     private List<ResolveInfo> mTmpAllApps, mAllApps;
     private static final int MIN_SIZE = 20;
     private PinnedHeaderListView mAppListView;
+    private BladeView mLetter;
     private AppListAdapter mAppListAdapter;
     private UidDetailProvider mUidDetailProvider;
     // collection of first character of apps
     private List<String> mSections = new ArrayList<String>();
-    // position of each character
-    private List<Integer> mPositions = new ArrayList<Integer>();;
+    // position of each first-character
+    private List<Integer> mPositions = new ArrayList<Integer>();
+    // collection of positions
+    private Map<String, Integer> mIndexer = new HashMap<String, Integer>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +60,18 @@ public class Home extends Activity {
                 this).inflate(
                 R.layout.biz_plugin_weather_list_group_item, mAppListView,
                 false));
+        mLetter = (BladeView) findViewById(R.id.app_bladeview);
+        mLetter.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(String s) {
+                if (!s.matches(FORMAT)) {
+                    s = "#";
+                }
+                if (mIndexer.get(s) != null) {
+                    mAppListView.setSelection(mIndexer.get(s));
+                }
+            }
+        });
 
         ProgressBar pbar = (ProgressBar) findViewById(R.id.loading);
         pbar.setVisibility(View.GONE);
@@ -105,11 +124,13 @@ public class Home extends Activity {
         mPositions.clear();
         mPositions.add(0);
         String current = mAllApps.get(0).activityInfo.applicationInfo.nativeLibraryDir;
+        mIndexer.put("#", 0);
         for (int i = 0; i < mAllApps.size(); i++) {
             if (current.matches(FORMAT) || (!current.matches(FORMAT) && mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir.matches(FORMAT))) {
                 if (!current.equals(mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir)) {
                     mPositions.add(i);
                     current = mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir;
+                    mIndexer.put(current, i);
                 }
             }
         }
