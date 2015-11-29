@@ -18,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ListView;
@@ -30,6 +31,10 @@ public class Home extends Activity {
     private ListView mAppListView;
     private AppListAdapter mAppListAdapter;
     private UidDetailProvider mUidDetailProvider;
+    // collection of first character of apps
+    private List<String> mSections = new ArrayList<String>();
+    // position of each character
+    private List<Integer> mPositions = new ArrayList<Integer>();;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,7 +43,7 @@ public class Home extends Activity {
         setContentView(R.layout.main);
         getAllApp();
         mUidDetailProvider = new UidDetailProvider(this);
-        mAppListAdapter = new AppListAdapter(this, mUidDetailProvider, mAllApps);
+        mAppListAdapter = new AppListAdapter(this, mUidDetailProvider, mAllApps, mSections, mPositions);
         mAppListView = (ListView) findViewById(R.id.apps);
         mAppListView.setVisibility(View.VISIBLE);
         mAppListView.setAdapter(mAppListAdapter);
@@ -89,6 +94,20 @@ public class Home extends Activity {
         mIntent = intent;
     }
 
+    private void preparePosition() {
+        mPositions.clear();
+        mPositions.add(0);
+        String current = mAllApps.get(0).activityInfo.applicationInfo.nativeLibraryDir;
+        for (int i = 0; i < mAllApps.size(); i++) {
+            if (current.matches(FORMAT) || (!current.matches(FORMAT) && mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir.matches(FORMAT))) {
+                if (!current.equals(mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir)) {
+                    mPositions.add(i);
+                    current = mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir;
+                }
+            }
+        }
+    }
+
     PackageManager mPm;
     private void getAllApp() {
         mPm = getPackageManager();
@@ -102,6 +121,8 @@ public class Home extends Activity {
                 prepareInfo(mAllApps.get(i));
             }
             Collections.sort(mAllApps, new StringComparator());// sort by name
+            Collections.sort(mSections);
+            preparePosition();
         } else {
             mAllApps = new ArrayList<ResolveInfo>();
             for (int i = 0; i < MIN_SIZE; i++) {
@@ -135,6 +156,10 @@ public class Home extends Activity {
                 mAllApps.add(mTmpAllApps.remove(0));
             }
             Collections.sort(mAllApps, new StringComparator());// sort by name
+            Collections.sort(mSections);
+            preparePosition();
+            mAppListAdapter.setSections(mSections);
+            mAppListAdapter.setPositions(mPositions);
             mAppListAdapter.notifyDataSetChanged();
         }
     }
@@ -150,15 +175,28 @@ public class Home extends Activity {
         }
     }
 
+    private static final String FORMAT = "^[A-Z]+$";
     HanziToPinyin mTo = HanziToPinyin.getInstance();
     private void prepareInfo(ResolveInfo info) {
+        String firstName = " ";
         // borrow the dataDir to store label, for loadLabel() is very time consuming
+        // use nativeLibraryDir to store first character
         info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
         if (info.activityInfo.applicationInfo.dataDir.length() < 1) {
             info.activityInfo.applicationInfo.dataDir = " ";
-            info.activityInfo.applicationInfo.nativeLibraryDir = " ";
         } else {
-            info.activityInfo.applicationInfo.nativeLibraryDir = mTo.getToken(info.activityInfo.applicationInfo.dataDir.charAt(0)).target;
+            firstName = mTo.getToken(info.activityInfo.applicationInfo.dataDir.charAt(0)).target;
+        }
+        firstName = firstName.substring(0, 1).toUpperCase();
+        info.activityInfo.applicationInfo.nativeLibraryDir = firstName;
+        if (firstName.matches(FORMAT)) {
+            if (!mSections.contains(firstName)) {
+                mSections.add(firstName);
+            }
+        } else {
+            if (!mSections.contains("#")) {
+                mSections.add("#");
+            }
         }
     }
 

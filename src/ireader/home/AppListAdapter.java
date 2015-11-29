@@ -1,7 +1,10 @@
 package ireader.home;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import com.way.plistview.PinnedHeaderListView.PinnedHeaderAdapter;
 
 import de.greenrobot.event.EventBus;
 
@@ -10,34 +13,53 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.SectionIndexer;
+import android.widget.TextView;
 
-public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
-    ArrayList localApplist;
-    Context mContext;
-    PackageManager mPm;
+public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements SectionIndexer, PinnedHeaderAdapter {
+    private ArrayList localApplist;
+    private Context mContext;
     private final UidDetailProvider mProvider;
+    private List<String> mSections;
+    private List<Integer> mPositions;
 
-    public AppListAdapter(Context context, UidDetailProvider provider, List<ResolveInfo> apps) {
+    public void setSections(List<String> sections) {
+        mSections = sections;
+    }
+    public void setPositions(List<Integer> positions) {
+        mPositions = positions;
+    }
+    public AppListAdapter(Context context, UidDetailProvider provider, List<ResolveInfo> apps, List<String> sections,
+            List<Integer> positions) {
         super(context, 0, apps);
         localApplist = (ArrayList) apps;
         mContext = context;
-        mPm = mContext.getPackageManager();
+        mContext.getPackageManager();
         mProvider = provider;
+        mSections = sections;
+        mPositions = positions;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = ((Activity) mContext).getLayoutInflater().inflate(R.layout.app_list, parent, false);
+            convertView = ((Activity) mContext).getLayoutInflater().inflate(R.layout.app_item, parent, false);
             convertView.setOnClickListener(clickListener);
             convertView.findViewById(R.id.version_name).setOnClickListener(uninstallClickListener);
+        }
+        TextView group = (TextView) convertView.findViewById(R.id.group_title);
+        int section = getSectionForPosition(position);
+        if (getPositionForSection(section) == position) {
+            group.setVisibility(View.VISIBLE);
+            group.setText(mSections.get(section));
+        } else {
+            group.setVisibility(View.GONE);
         }
         UidDetailTask.bindView(mProvider, (ResolveInfo) localApplist.get(position), convertView);
 
@@ -77,4 +99,49 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> {
             } catch(ActivityNotFoundException e) {}
         }
     };
+
+    @Override
+    public int getPinnedHeaderState(int position) {
+        int realPosition = position;
+        if (realPosition < 0 || position >= getCount()) {
+            return PINNED_HEADER_GONE;
+        }
+        int section = getSectionForPosition(realPosition);
+        int nextSectionPosition = getPositionForSection(section + 1);
+        if (nextSectionPosition != -1
+                && realPosition == nextSectionPosition - 1) {
+            return PINNED_HEADER_PUSHED_UP;
+        }
+        return PINNED_HEADER_VISIBLE;
+    }
+
+    @Override
+    public void configurePinnedHeader(View header, int position, int alpha) {
+        int realPosition = position;
+        int section = getSectionForPosition(realPosition);
+        String title = (String) getSections()[section];
+        ((TextView) header.findViewById(R.id.group_title)).setText(title);
+    }
+
+    @Override
+    public int getPositionForSection(int section) {
+        if (section < 0 || section >= mPositions.size()) {
+            return -1;
+        }
+        return mPositions.get(section);
+    }
+
+    @Override
+    public int getSectionForPosition(int position) {
+        if (position < 0 || position >= getCount()) {
+            return -1;
+        }
+        int index = Arrays.binarySearch(mPositions.toArray(), position);
+        return index >= 0 ? index : -index - 2;
+    }
+
+    @Override
+    public Object[] getSections() {
+        return mSections.toArray();
+    }
 }

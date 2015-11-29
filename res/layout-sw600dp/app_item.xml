@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/group_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/list_group_item_background_selected"
+        android:gravity="left|center"
+        android:paddingBottom="5.0dip"
+        android:paddingLeft="28dip"
+        android:paddingRight="28dip"
+        android:paddingTop="5.0dip"
+        android:textColor="#ff2f2f2f"
+        android:textStyle="bold" />
+
+    <RelativeLayout
+        android:id="@+id/app_item"
+        android:layout_width="match_parent"
+        android:layout_height="120dip"
+        android:clickable="true"
+        android:orientation="horizontal"
+        android:paddingLeft="50dip"
+        android:paddingRight="50dip" >
+
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="80dip"
+            android:layout_height="80dip"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center"
+            android:scaleType="centerCrop" />
+
+        <LinearLayout
+            android:id="@+id/app_stuf"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/version_name"
+                android:layout_width="wrap_content"
+                android:layout_height="0dip"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:lines="1"
+                android:maxLines="1"
+                android:textColor="#ffaaaaaa"
+                android:textSize="24sp" />
+
+            <TextView
+                android:id="@+id/package_name"
+                android:layout_width="wrap_content"
+                android:layout_height="0dip"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center"
+                android:lines="1"
+                android:maxLines="1"
+                android:textColor="#ffcccccc"
+                android:textSize="24sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/app_icon"
+            android:paddingLeft="50dip"
+            android:singleLine="true"
+            android:textColor="#FF000000"
+            android:textSize="32sp" />
+    </RelativeLayout>
+
+</LinearLayout>
