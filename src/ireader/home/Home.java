@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.way.plistview.PinnedHeaderListView;
+
 import de.greenrobot.event.EventBus;
 
 import android.app.Activity;
@@ -18,17 +20,16 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
 public class Home extends Activity {
 
     private List<ResolveInfo> mTmpAllApps, mAllApps;
     private static final int MIN_SIZE = 20;
-    private ListView mAppListView;
+    private PinnedHeaderListView mAppListView;
     private AppListAdapter mAppListAdapter;
     private UidDetailProvider mUidDetailProvider;
     // collection of first character of apps
@@ -44,9 +45,15 @@ public class Home extends Activity {
         getAllApp();
         mUidDetailProvider = new UidDetailProvider(this);
         mAppListAdapter = new AppListAdapter(this, mUidDetailProvider, mAllApps, mSections, mPositions);
-        mAppListView = (ListView) findViewById(R.id.apps);
+        mAppListView = (PinnedHeaderListView) findViewById(R.id.apps);
         mAppListView.setVisibility(View.VISIBLE);
         mAppListView.setAdapter(mAppListAdapter);
+        mAppListView.setOnScrollListener(mAppListAdapter);
+        mAppListView.setPinnedHeaderView(LayoutInflater.from(
+                this).inflate(
+                R.layout.biz_plugin_weather_list_group_item, mAppListView,
+                false));
+
         ProgressBar pbar = (ProgressBar) findViewById(R.id.loading);
         pbar.setVisibility(View.GONE);
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.way.plistview.PinnedHeaderListView;
 import com.way.plistview.PinnedHeaderListView.PinnedHeaderAdapter;
 
 import de.greenrobot.event.EventBus;
@@ -18,11 +19,13 @@ import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.ArrayAdapter;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements SectionIndexer, PinnedHeaderAdapter {
+public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements SectionIndexer, PinnedHeaderAdapter, OnScrollListener {
     private ArrayList localApplist;
     private Context mContext;
     private final UidDetailProvider mProvider;
@@ -50,7 +53,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = ((Activity) mContext).getLayoutInflater().inflate(R.layout.app_item, parent, false);
-            convertView.setOnClickListener(clickListener);
+            convertView.findViewById(R.id.app_item).setOnClickListener(launchClickListener);
             convertView.findViewById(R.id.version_name).setOnClickListener(uninstallClickListener);
         }
         TextView group = (TextView) convertView.findViewById(R.id.group_title);
@@ -66,7 +69,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
         return convertView;
     }
 
-    private OnClickListener clickListener = new OnClickListener() {
+    private OnClickListener launchClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
             UidDetail detail = (UidDetail)view.findViewById(R.id.version_name).getTag();
@@ -101,6 +104,18 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
     };
 
     @Override
+    public void onScroll(AbsListView view, int firstVisibleItem,
+            int visibleItemCount, int totalItemCount) {
+        if (view instanceof PinnedHeaderListView) {
+            ((PinnedHeaderListView) view).configureHeaderView(firstVisibleItem);
+        }
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView arg0, int arg1) {
+    }
+
+    @Override
     public int getPinnedHeaderState(int position) {
         int realPosition = position;
         if (realPosition < 0 || position >= getCount()) {
@@ -119,6 +134,8 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
     public void configurePinnedHeader(View header, int position, int alpha) {
         int realPosition = position;
         int section = getSectionForPosition(realPosition);
+        if (section < 0)
+            return;
         String title = (String) getSections()[section];
         ((TextView) header.findViewById(R.id.group_title)).setText(title);
     }
