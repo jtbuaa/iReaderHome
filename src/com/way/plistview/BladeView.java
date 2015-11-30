@@ -6,7 +6,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Picture;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -28,7 +27,7 @@ public class BladeView extends View {
     boolean showBkg = false;
     private PopupWindow mPopupWindow;
     private TextView mPopupText;
-    private int mCharHeight = 15;
+    private int mCharHeight = 36;
 
     public BladeView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
