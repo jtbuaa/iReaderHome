@@ -24,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -206,15 +207,13 @@ public class Home extends Activity {
     private static final String FORMAT = "^[A-Z]+$";
     HanziToPinyin mTo = HanziToPinyin.getInstance();
     private void prepareInfo(ResolveInfo info) {
-        String firstName = " ";
         // borrow the dataDir to store label, for loadLabel() is very time consuming
         // use nativeLibraryDir to store first character
         info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
-        if (info.activityInfo.applicationInfo.dataDir.length() < 1) {
-            info.activityInfo.applicationInfo.dataDir = " ";
-        } else {
-            firstName = mTo.getToken(info.activityInfo.applicationInfo.dataDir.charAt(0)).target;
+        if (TextUtils.isEmpty(info.activityInfo.applicationInfo.dataDir)) {
+            info.activityInfo.applicationInfo.dataDir = info.activityInfo.name;
         }
+        String firstName = mTo.getToken(info.activityInfo.applicationInfo.dataDir.charAt(0)).target;
         firstName = firstName.substring(0, 1).toUpperCase();
         info.activityInfo.applicationInfo.nativeLibraryDir = firstName;
         if (firstName.matches(FORMAT)) {

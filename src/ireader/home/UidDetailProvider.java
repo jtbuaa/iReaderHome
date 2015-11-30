@@ -19,9 +19,7 @@ package ireader.home;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
 import android.util.SparseArray;
 
 public class UidDetailProvider {
@@ -70,23 +68,10 @@ public class UidDetailProvider {
 
         final UidDetail detail = new UidDetail();
         // we have store label in dataDir when prepareInfo. if not, should use info.loadLabel(pm);
-        detail.label = info.activityInfo.applicationInfo.dataDir;
         detail.icon = info.loadIcon(pm);
         detail.packageName = info.activityInfo.packageName;
         detail.className = info.activityInfo.name;
         detail.hashCode = info.hashCode();
-        try {
-            String version = pm.getPackageInfo(info.activityInfo.packageName, 0).versionName;
-            if ((version == null) || (version.trim().equals("")))
-                version = String.valueOf(pm.getPackageInfo(info.activityInfo.packageName, 0).versionCode);
-            detail.versionName = version;
-        } catch (NameNotFoundException e) {
-            detail.versionName= e.toString();
-        }
-
-        if (TextUtils.isEmpty(detail.label)) {
-            detail.label = info.activityInfo.name;
-        }
 
         return detail;
     }

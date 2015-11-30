@@ -19,10 +19,8 @@ package ireader.home;
 import android.graphics.drawable.Drawable;
 
 public class UidDetail {
-    public CharSequence label;
     public Drawable icon;
     public String packageName;
-    public String versionName;
     public String className;
     public int hashCode;
 }

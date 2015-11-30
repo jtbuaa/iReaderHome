@@ -14,7 +14,9 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +30,7 @@ import android.widget.TextView;
 public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements SectionIndexer, PinnedHeaderAdapter, OnScrollListener {
     private ArrayList localApplist;
     private Context mContext;
+    private PackageManager mPm;
     private final UidDetailProvider mProvider;
     private List<String> mSections;
     private List<Integer> mPositions;
@@ -43,7 +46,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
         super(context, 0, apps);
         localApplist = (ArrayList) apps;
         mContext = context;
-        mContext.getPackageManager();
+        mPm = mContext.getPackageManager();
         mProvider = provider;
         mSections = sections;
         mPositions = positions;
@@ -56,6 +59,21 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
             convertView.findViewById(R.id.app_item).setOnClickListener(launchClickListener);
             convertView.findViewById(R.id.version_name).setOnClickListener(uninstallClickListener);
         }
+        final TextView title = (TextView) convertView.findViewById(R.id.app_name);
+        final TextView versionName = (TextView) convertView.findViewById(R.id.version_name);
+        final TextView packageName = (TextView) convertView.findViewById(R.id.package_name);
+        ResolveInfo info = (ResolveInfo) localApplist.get(position);
+        title.setText(info.activityInfo.applicationInfo.dataDir);
+        packageName.setText(info.activityInfo.packageName);
+        try {
+            String version = mPm.getPackageInfo(info.activityInfo.packageName, 0).versionName;
+            if ((version == null) || (version.trim().equals("")))
+                version = String.valueOf(mPm.getPackageInfo(info.activityInfo.packageName, 0).versionCode);
+            versionName.setText(version);
+        } catch (NameNotFoundException e) {
+            versionName.setText(e.toString());
+        }
+
         TextView group = (TextView) convertView.findViewById(R.id.group_title);
         int section = getSectionForPosition(position);
         if (getPositionForSection(section) == position) {
