@@ -1,5 +1,7 @@
-package ireader.home;
+package com.android.settings.net;
 
+import ireader.home.R;
+import ireader.home.R.id;
 import android.content.pm.ResolveInfo;
 import android.os.AsyncTask;
 import android.view.View;

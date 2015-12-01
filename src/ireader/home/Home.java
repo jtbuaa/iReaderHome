@@ -1,11 +1,16 @@
 package ireader.home;
 
+import ireader.home.floater.Dragger;
+import ireader.home.util.HanziToPinyin;
+import ireader.home.util.StringComparator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.android.settings.net.UidDetailProvider;
 import com.way.plistview.BladeView;
 import com.way.plistview.PinnedHeaderListView;
 import com.way.plistview.BladeView.OnItemClickListener;

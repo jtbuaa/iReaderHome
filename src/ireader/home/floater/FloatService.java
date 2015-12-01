@@ -1,5 +1,5 @@
 
-package ireader.home;
+package ireader.home.floater;
 
 import android.app.Activity;
 import android.app.Service;

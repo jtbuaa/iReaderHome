@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ireader.home;
+package com.android.settings.net;
 
 import android.graphics.drawable.Drawable;
 
