@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ireader.home.util;
+package base.util;
 
 import android.text.TextUtils;
 import android.util.Log;

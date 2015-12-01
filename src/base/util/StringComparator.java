@@ -1,5 +1,5 @@
 
-package ireader.home.util;
+package base.util;
 
 import java.text.Collator;
 import java.util.Comparator;

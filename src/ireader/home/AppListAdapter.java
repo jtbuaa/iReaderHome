@@ -1,6 +1,5 @@
 package ireader.home;
 
-import ireader.home.floater.Dragger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +12,7 @@ import com.way.plistview.PinnedHeaderListView;
 import com.way.plistview.PinnedHeaderListView.PinnedHeaderAdapter;
 
 import de.greenrobot.event.EventBus;
+import floating.lib.Dragger;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;

@@ -31,11 +31,11 @@
         </activity>
 
         <service
-            android:name="ireader.home.floater.Dragger"
+            android:name="floating.lib.Dragger"
             android:process=":dragger"
             android:exported="false" />
 
-        <receiver android:name="ireader.home.floater.BootupMonitor" >
+        <receiver android:name="floating.lib.BootupMonitor" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

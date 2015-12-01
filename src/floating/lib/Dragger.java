@@ -1,5 +1,5 @@
 
-package ireader.home.floater;
+package floating.lib;
 
 import ireader.home.Home;
 import ireader.home.R;
