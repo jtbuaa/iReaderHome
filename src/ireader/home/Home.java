@@ -126,17 +126,37 @@ public class Home extends Activity {
         mIntent = intent;
     }
 
+    private static final String FORMAT = "^[A-Z]+$";
+    HanziToPinyin mTo = HanziToPinyin.getInstance();
+    private void prepareInfo(ResolveInfo info) {
+        // borrow the dataDir to store label, for loadLabel() is very time consuming
+        // use nativeLibraryDir to store first character
+        info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
+        if (TextUtils.isEmpty(info.activityInfo.applicationInfo.dataDir)) {
+            info.activityInfo.applicationInfo.dataDir = info.activityInfo.name;
+        }
+        String firstName = mTo.getToken(info.activityInfo.applicationInfo.dataDir.charAt(0)).target;
+        firstName = firstName.substring(0, 1).toUpperCase();
+        info.activityInfo.applicationInfo.nativeLibraryDir = firstName;
+    }
+
     private void preparePosition() {
+        mSections.clear();
         mPositions.clear();
-        mPositions.add(0);
-        String current = mAllApps.get(0).activityInfo.applicationInfo.nativeLibraryDir;
-        mIndexer.put("#", 0);
+        mIndexer.clear();
         for (int i = 0; i < mAllApps.size(); i++) {
-            if (current.matches(FORMAT) || (!current.matches(FORMAT) && mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir.matches(FORMAT))) {
-                if (!current.equals(mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir)) {
+            String firstName = mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir;
+            if (firstName.matches(FORMAT)) {
+                if (!mSections.contains(firstName)) {
+                    mSections.add(firstName);
                     mPositions.add(i);
-                    current = mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir;
-                    mIndexer.put(current, i);
+                    mIndexer.put(firstName, i);
+                }
+            } else {
+                if (!mSections.contains("#")) {
+                    mSections.add("#");
+                    mPositions.add(i);
+                    mIndexer.put("#", i);
                 }
             }
         }
@@ -155,7 +175,6 @@ public class Home extends Activity {
                 prepareInfo(mAllApps.get(i));
             }
             Collections.sort(mAllApps, new StringComparator());// sort by name
-            Collections.sort(mSections);
             preparePosition();
         } else {
             mAllApps = new ArrayList<ResolveInfo>();
@@ -190,14 +209,17 @@ public class Home extends Activity {
                 mAllApps.add(mTmpAllApps.remove(0));
             }
             Collections.sort(mAllApps, new StringComparator());// sort by name
-            Collections.sort(mSections);
-            preparePosition();
-            mAppListAdapter.setSections(mSections);
-            mAppListAdapter.setPositions(mPositions);
-            mAppListAdapter.notifyDataSetChanged();
+            prepareAll();
         }
     }
     AppHandler mHandler = new AppHandler();
+
+    private void prepareAll() {
+        preparePosition();
+        mAppListAdapter.setSections(mSections);
+        mAppListAdapter.setPositions(mPositions);
+        mAppListAdapter.notifyDataSetChanged();
+    }
 
     private void removeInfo(String packageName) {
         for (int i = 0; i < mAllApps.size(); i++) {
@@ -209,29 +231,6 @@ public class Home extends Activity {
         }
     }
 
-    private static final String FORMAT = "^[A-Z]+$";
-    HanziToPinyin mTo = HanziToPinyin.getInstance();
-    private void prepareInfo(ResolveInfo info) {
-        // borrow the dataDir to store label, for loadLabel() is very time consuming
-        // use nativeLibraryDir to store first character
-        info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
-        if (TextUtils.isEmpty(info.activityInfo.applicationInfo.dataDir)) {
-            info.activityInfo.applicationInfo.dataDir = info.activityInfo.name;
-        }
-        String firstName = mTo.getToken(info.activityInfo.applicationInfo.dataDir.charAt(0)).target;
-        firstName = firstName.substring(0, 1).toUpperCase();
-        info.activityInfo.applicationInfo.nativeLibraryDir = firstName;
-        if (firstName.matches(FORMAT)) {
-            if (!mSections.contains(firstName)) {
-                mSections.add(firstName);
-            }
-        } else {
-            if (!mSections.contains("#")) {
-                mSections.add("#");
-            }
-        }
-    }
-
     BroadcastReceiver packageReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -239,7 +238,7 @@ public class Home extends Activity {
             String packageName = intent.getDataString().split(":")[1];
             if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
                 removeInfo(packageName);
-                mAppListAdapter.notifyDataSetChanged();
+                prepareAll();
             } else if (action.equals(Intent.ACTION_PACKAGE_ADDED)) {
                 Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
                 mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -252,7 +251,7 @@ public class Home extends Activity {
                         prepareInfo(info);
                         mAllApps.add(info);
                         Collections.sort(mAllApps, new StringComparator());// sort by name
-                        mAppListAdapter.notifyDataSetChanged();
+                        prepareAll();
                         break;
                     }
                 }
