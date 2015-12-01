@@ -1,5 +1,7 @@
-package ireader.home;
+package ireader.adapter;
 
+
+import ireader.home.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +70,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
         final TextView versionName = (TextView) convertView.findViewById(R.id.version_name);
         final TextView packageName = (TextView) convertView.findViewById(R.id.package_name);
         ResolveInfo info = (ResolveInfo) localApplist.get(position);
-        title.setText(info.activityInfo.applicationInfo.dataDir);
+        title.setText(((ReaderResolveInfo) info).getLabel());
         packageName.setText(info.activityInfo.packageName);
         try {
             String version = mPm.getPackageInfo(info.activityInfo.packageName, 0).versionName;

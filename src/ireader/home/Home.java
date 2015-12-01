@@ -1,6 +1,10 @@
 package ireader.home;
 
 
+import ireader.adapter.AppListAdapter;
+import ireader.adapter.ReaderResolveInfo;
+import ireader.adapter.SearchAppAdapter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,13 +34,15 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ProgressBar;
+import android.widget.EditText;
 
-public class Home extends Activity {
+public class Home extends Activity implements TextWatcher {
 
     private List<ResolveInfo> mTmpAllApps, mAllApps;
     private static final int MIN_SIZE = 20;
@@ -50,6 +56,9 @@ public class Home extends Activity {
     private List<Integer> mPositions = new ArrayList<Integer>();
     // collection of positions
     private Map<String, Integer> mIndexer = new HashMap<String, Integer>();
+
+    private EditText mSearchEditText;
+    private SearchAppAdapter mSearchAppAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,8 +89,8 @@ public class Home extends Activity {
             }
         });
 
-        ProgressBar pbar = (ProgressBar) findViewById(R.id.loading);
-        pbar.setVisibility(View.GONE);
+        mSearchEditText = (EditText) findViewById(R.id.search_edit);
+        mSearchEditText.addTextChangedListener(this);
 
         // for package add/remove
         IntentFilter filter = new IntentFilter();
@@ -132,13 +141,14 @@ public class Home extends Activity {
     private void prepareInfo(ResolveInfo info) {
         // borrow the dataDir to store label, for loadLabel() is very time consuming
         // use nativeLibraryDir to store first character
-        info.activityInfo.applicationInfo.dataDir = (String) info.loadLabel(mPm);
-        if (TextUtils.isEmpty(info.activityInfo.applicationInfo.dataDir)) {
-            info.activityInfo.applicationInfo.dataDir = info.activityInfo.name;
+        String label = (String) info.loadLabel(mPm);
+        if (TextUtils.isEmpty(label)) {
+            label = info.activityInfo.name;
         }
-        String firstName = mTo.getToken(info.activityInfo.applicationInfo.dataDir.charAt(0)).target;
+        ((ReaderResolveInfo) info).setLabel(label);
+        String firstName = mTo.getToken(label.charAt(0)).target;
         firstName = firstName.substring(0, 1).toUpperCase();
-        info.activityInfo.applicationInfo.nativeLibraryDir = firstName;
+        ((ReaderResolveInfo) info).setFirstCharacter(firstName);
     }
 
     private void preparePosition() {
@@ -146,7 +156,7 @@ public class Home extends Activity {
         mPositions.clear();
         mIndexer.clear();
         for (int i = 0; i < mAllApps.size(); i++) {
-            String firstName = mAllApps.get(i).activityInfo.applicationInfo.nativeLibraryDir;
+            String firstName = ((ReaderResolveInfo) mAllApps.get(i)).getFirstCharacter();
             if (firstName.matches(FORMAT)) {
                 if (!mSections.contains(firstName)) {
                     mSections.add(firstName);
@@ -259,5 +269,23 @@ public class Home extends Activity {
             }
         }
     };
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

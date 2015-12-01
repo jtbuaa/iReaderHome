@@ -67,7 +67,6 @@ public class UidDetailProvider {
         final PackageManager pm = mContext.getPackageManager();
 
         final UidDetail detail = new UidDetail();
-        // we have store label in dataDir when prepareInfo. if not, should use info.loadLabel(pm);
         detail.icon = info.loadIcon(pm);
         detail.packageName = info.activityInfo.packageName;
         detail.className = info.activityInfo.name;

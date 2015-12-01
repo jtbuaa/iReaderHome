@@ -1,5 +1,5 @@
 <resources>
 
     <string name="app_name">掌阅桌面</string>
-
+    <string name="biz_plugin_weather_search_city_hint">搜索安装的应用</string>
 </resources>

@@ -1,6 +1,8 @@
 
 package base.util;
 
+import ireader.adapter.ReaderResolveInfo;
+
 import java.text.Collator;
 import java.util.Comparator;
 
@@ -11,7 +13,7 @@ public class StringComparator implements Comparator<ResolveInfo> {
     }
 
     public final int compare(ResolveInfo a, ResolveInfo b) {
-        return sCollator.compare(a.activityInfo.applicationInfo.nativeLibraryDir, b.activityInfo.applicationInfo.nativeLibraryDir);
+        return sCollator.compare(((ReaderResolveInfo) a).getFirstCharacter(), ((ReaderResolveInfo) b).getFirstCharacter());
     }
 
     private final Collator sCollator = Collator.getInstance();
