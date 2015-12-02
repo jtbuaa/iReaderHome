@@ -22,8 +22,7 @@
             android:layout_height="match_parent"
             android:cacheColorHint="#00000000"
             android:focusableInTouchMode="true"
-            android:scrollbars="none"
-            android:visibility="gone" />
+            android:scrollbars="none" />
 
         <include
             android:id="@+id/app_list_empty"
@@ -48,8 +47,8 @@
         <ListView
             android:id="@+id/search_list"
             style="@style/base_listview_style"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:cacheColorHint="#00000000"
             android:focusableInTouchMode="true" />
 

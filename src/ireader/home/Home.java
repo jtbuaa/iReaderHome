@@ -69,14 +69,22 @@ public class Home extends Activity implements TextWatcher {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main);
-        getAllApp();
-        mUidDetailProvider = new UidDetailProvider(this);
-        mAppListAdapter = new AppListAdapter(this, mUidDetailProvider, mAllApps, mSections, mPositions);
         mAppListView = (PinnedHeaderListView) findViewById(R.id.apps);
         mAppListView.setEmptyView(findViewById(R.id.app_list_empty));
-        mAppListView.setVisibility(View.VISIBLE);
-        mAppListView.setAdapter(mAppListAdapter);
-        mAppListView.setOnScrollListener(mAppListAdapter);
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                getAllApp();
+                mUidDetailProvider = new UidDetailProvider(Home.this);
+                mAppListAdapter = new AppListAdapter(Home.this, mUidDetailProvider, mAllApps, mSections, mPositions);
+                mHandler.sendEmptyMessage(0);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+            }
+        }.execute(null, null, null);
         mAppListView.setPinnedHeaderView(LayoutInflater.from(
                 this).inflate(
                 R.layout.biz_plugin_weather_list_group_item, mAppListView,
@@ -216,7 +224,7 @@ public class Home extends Activity implements TextWatcher {
                     for (int i = 0; i < mTmpAllApps.size(); i++) {
                         prepareInfo(mTmpAllApps.get(i));
                     }
-                    mHandler.sendEmptyMessage(0);
+                    mHandler.sendEmptyMessage(1);
                     return null;
                 }
 
@@ -229,11 +237,19 @@ public class Home extends Activity implements TextWatcher {
 
     private class AppHandler extends Handler {
         public void handleMessage(Message msg) {
-            while (mTmpAllApps.size() > 0) {
-                mAllApps.add(mTmpAllApps.remove(0));
+            switch(msg.what) {
+                case 0:
+                    mAppListView.setAdapter(mAppListAdapter);
+                    mAppListView.setOnScrollListener(mAppListAdapter);
+                    break;
+                case 1:
+                    while (mTmpAllApps.size() > 0) {
+                        mAllApps.add(mTmpAllApps.remove(0));
+                    }
+                    Collections.sort(mAllApps, new StringComparator());// sort by name
+                    prepareAll();
+                    break;
             }
-            Collections.sort(mAllApps, new StringComparator());// sort by name
-            prepareAll();
         }
     }
     AppHandler mHandler = new AppHandler();
