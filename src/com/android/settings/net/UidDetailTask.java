@@ -37,7 +37,7 @@ public class UidDetailTask extends AsyncTask<Void, Void, UidDetail> {
             bindView(cachedDetail, target);
         } else {
             target.setTag(new UidDetailTask(provider, info, target)
-                    .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR));
+                    .execute(null, null, null));
         }
     }
 

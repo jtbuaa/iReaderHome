@@ -212,7 +212,7 @@ public class Home extends Activity implements TextWatcher {
                 @Override
                 protected void onPostExecute(Void result) {
                 }
-            }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }.execute(null, null, null);
         }
     }
 
