@@ -16,6 +16,7 @@ public class AppSelectListAdapter extends AppListAdapter implements Filterable {
     public AppSelectListAdapter(Context context, UidDetailProvider provider,
             List<ResolveInfo> apps, List<String> sections, List<Integer> positions) {
         super(context, provider, apps, sections, positions);
+        mIsSearching = true;
     }
 
     @Override

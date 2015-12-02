@@ -2,6 +2,7 @@ package ireader.home;
 
 
 import ireader.adapter.AppListAdapter;
+import ireader.adapter.AppSelectListAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,7 @@ public class Home extends Activity implements TextWatcher {
     private PinnedHeaderListView mAppListView;
     private BladeView mLetter;
     private AppListAdapter mAppListAdapter;
+    private AppSelectListAdapter mAppSelectListAdapter;
     private UidDetailProvider mUidDetailProvider;
     // collection of first character of apps
     private List<String> mSections = new ArrayList<String>();
@@ -254,7 +256,7 @@ public class Home extends Activity implements TextWatcher {
                 mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
                 mainIntent.setPackage(packageName);
                 List<ResolveInfo> targetApps = mPm.queryIntentActivities(mainIntent, 0);
-                // the new package may not support launcher. so filter it first
+                // the new package may not support launcher. so filter it at first
                 for (int i = 0; i < targetApps.size(); i++) {
                     ResolveInfo info = targetApps.get(i);
                     if (info.activityInfo.packageName.equals(packageName)) {
@@ -277,11 +279,12 @@ public class Home extends Activity implements TextWatcher {
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (TextUtils.isEmpty(s)) {
             mAppListView.setTextFilterEnabled(false);
-            mAppListAdapter.setSearchMode(false);
+            mAppListView.setAdapter(mAppListAdapter);
         } else {
             mAppListView.setTextFilterEnabled(true);
-            mAppListAdapter.setSearchMode(true);
-            mAppListAdapter.getFilter().filter(s);
+            mAppSelectListAdapter = new AppSelectListAdapter(Home.this, mUidDetailProvider, mAllApps, mSections, mPositions);
+            mAppListView.setAdapter(mAppSelectListAdapter);
+            mAppSelectListAdapter.getFilter().filter(s);
         }
     }
 

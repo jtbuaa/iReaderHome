@@ -38,16 +38,12 @@ import android.widget.TextView;
 public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements SectionIndexer, PinnedHeaderAdapter, OnScrollListener {
     protected List<ResolveInfo> mAllApps;
     public List<ResolveInfo> mResultApps;
-    private boolean mIsSearching = false;
+    protected boolean mIsSearching = false;
     private Context mContext;
     private PackageManager mPm;
     private final UidDetailProvider mProvider;
     private List<String> mSections;
     private List<Integer> mPositions;
-
-    public void setSearchMode(boolean searching) {
-        mIsSearching = searching;
-    }
 
     public void setSections(List<String> sections) {
         mSections = sections;

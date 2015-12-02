@@ -9,5 +9,5 @@
     android:paddingLeft="14dip"
     android:paddingRight="14dip"
     android:paddingTop="5.0dip"
-    android:textStyle="bold"
-    android:textColor="#ff2f2f2f" />
+    android:textColor="#ff2f2f2f"
+    android:textStyle="bold" />
