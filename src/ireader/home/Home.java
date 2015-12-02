@@ -2,8 +2,6 @@ package ireader.home;
 
 
 import ireader.adapter.AppListAdapter;
-import ireader.adapter.ReaderResolveInfo;
-import ireader.adapter.SearchAppAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +11,7 @@ import java.util.Map;
 
 import base.util.HanziToPinyin;
 import base.util.StringComparator;
+import base.util.Util;
 
 import com.android.settings.net.UidDetailProvider;
 import com.way.plistview.BladeView;
@@ -58,7 +57,6 @@ public class Home extends Activity implements TextWatcher {
     private Map<String, Integer> mIndexer = new HashMap<String, Integer>();
 
     private EditText mSearchEditText;
-    private SearchAppAdapter mSearchAppAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -139,16 +137,16 @@ public class Home extends Activity implements TextWatcher {
     private static final String FORMAT = "^[A-Z]+$";
     HanziToPinyin mTo = HanziToPinyin.getInstance();
     private void prepareInfo(ResolveInfo info) {
-        // borrow the dataDir to store label, for loadLabel() is very time consuming
-        // use nativeLibraryDir to store first character
         String label = (String) info.loadLabel(mPm);
         if (TextUtils.isEmpty(label)) {
             label = info.activityInfo.name;
         }
-        ((ReaderResolveInfo) info).setLabel(label);
-        String firstName = mTo.getToken(label.charAt(0)).target;
-        firstName = firstName.substring(0, 1).toUpperCase();
-        ((ReaderResolveInfo) info).setFirstCharacter(firstName);
+        Util.setLabel(info, label);
+        StringBuilder pinyin = new StringBuilder("");
+        for (int i = 0; i < label.length(); i++) {
+            pinyin.append(mTo.getToken(label.charAt(i)).target);
+        }
+        Util.setPinyin(info, pinyin.toString().toUpperCase());
     }
 
     private void preparePosition() {
@@ -156,7 +154,7 @@ public class Home extends Activity implements TextWatcher {
         mPositions.clear();
         mIndexer.clear();
         for (int i = 0; i < mAllApps.size(); i++) {
-            String firstName = ((ReaderResolveInfo) mAllApps.get(i)).getFirstCharacter();
+            String firstName = Util.getPinyin(mAllApps.get(i)).substring(0, 1);
             if (firstName.matches(FORMAT)) {
                 if (!mSections.contains(firstName)) {
                     mSections.add(firstName);
@@ -272,20 +270,22 @@ public class Home extends Activity implements TextWatcher {
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // TODO Auto-generated method stub
-        
+        if (TextUtils.isEmpty(s)) {
+            mAppListView.setTextFilterEnabled(false);
+            mAppListAdapter.setSearchMode(false);
+        } else {
+            mAppListView.setTextFilterEnabled(true);
+            mAppListAdapter.setSearchMode(true);
+            mAppListAdapter.getFilter().filter(s);
+        }
     }
 
     @Override
     public void afterTextChanged(Editable s) {
-        // TODO Auto-generated method stub
-        
     }
 
 }

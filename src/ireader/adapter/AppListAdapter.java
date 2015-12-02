@@ -3,9 +3,10 @@ package ireader.adapter;
 
 import ireader.home.R;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import base.util.Util;
 
 import com.android.settings.net.UidDetail;
 import com.android.settings.net.UidDetailProvider;
@@ -35,12 +36,18 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements SectionIndexer, PinnedHeaderAdapter, OnScrollListener {
-    private ArrayList localApplist;
+    protected List<ResolveInfo> mAllApps;
+    public List<ResolveInfo> mResultApps;
+    private boolean mIsSearching = false;
     private Context mContext;
     private PackageManager mPm;
     private final UidDetailProvider mProvider;
     private List<String> mSections;
     private List<Integer> mPositions;
+
+    public void setSearchMode(boolean searching) {
+        mIsSearching = searching;
+    }
 
     public void setSections(List<String> sections) {
         mSections = sections;
@@ -51,7 +58,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
     public AppListAdapter(Context context, UidDetailProvider provider, List<ResolveInfo> apps, List<String> sections,
             List<Integer> positions) {
         super(context, 0, apps);
-        localApplist = (ArrayList) apps;
+        mAllApps = apps;
         mContext = context;
         mPm = mContext.getPackageManager();
         mProvider = provider;
@@ -69,8 +76,16 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
         final TextView title = (TextView) convertView.findViewById(R.id.app_name);
         final TextView versionName = (TextView) convertView.findViewById(R.id.version_name);
         final TextView packageName = (TextView) convertView.findViewById(R.id.package_name);
-        ResolveInfo info = (ResolveInfo) localApplist.get(position);
-        title.setText(((ReaderResolveInfo) info).getLabel());
+        ResolveInfo info;
+        if (mIsSearching) {
+            if (mResultApps == null || mResultApps.isEmpty() || position >= mResultApps.size()) {
+                return convertView;
+            }
+            info = mResultApps.get(position);
+        } else {
+            info = mAllApps.get(position);
+        }
+        title.setText(Util.getLabel(info));
         packageName.setText(info.activityInfo.packageName);
         try {
             String version = mPm.getPackageInfo(info.activityInfo.packageName, 0).versionName;
@@ -89,7 +104,7 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
         } else {
             group.setVisibility(View.GONE);
         }
-        UidDetailTask.bindView(mProvider, (ResolveInfo) localApplist.get(position), convertView);
+        UidDetailTask.bindView(mProvider, info, convertView);
 
         return convertView;
     }
@@ -186,4 +201,5 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
     public Object[] getSections() {
         return mSections.toArray();
     }
+
 }
