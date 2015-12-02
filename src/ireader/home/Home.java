@@ -37,6 +37,7 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -191,7 +192,7 @@ public class Home extends Activity implements TextWatcher {
         } else {
             mAllApps = new ArrayList<ResolveInfo>();
             for (int i = 0; i < MIN_SIZE; i++) {
-                mAllApps.add(mTmpAllApps.remove(i));
+                mAllApps.add(mTmpAllApps.remove(0));
                 prepareInfo(mAllApps.get(i));
             }
         }
@@ -249,9 +250,11 @@ public class Home extends Activity implements TextWatcher {
             String action = intent.getAction();
             String packageName = intent.getDataString().split(":")[1];
             if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
+                Log.d("==========remove", packageName);
                 removeInfo(packageName);
                 prepareAll();
             } else if (action.equals(Intent.ACTION_PACKAGE_ADDED)) {
+                Log.d("==========added", packageName);
                 Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
                 mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
                 mainIntent.setPackage(packageName);
