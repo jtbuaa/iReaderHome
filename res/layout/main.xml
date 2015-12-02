@@ -24,6 +24,12 @@
             android:scrollbars="none"
             android:visibility="gone" />
 
+        <include
+            android:id="@+id/app_list_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/base_load_empty_layout" />
+
         <com.way.plistview.BladeView
             android:id="@+id/app_bladeview"
             android:layout_width="30dip"

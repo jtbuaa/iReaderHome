@@ -9,7 +9,7 @@ licensce: freeBSD
 
 some code is from other open source project. thanks for their work.
 
-com.way.plistview from
+com.way.plistview and many others from
 http://git.oschina.net/way/EZWeather
 
 UidDetail from Settings of AOSP

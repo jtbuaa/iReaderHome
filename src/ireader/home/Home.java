@@ -67,6 +67,7 @@ public class Home extends Activity implements TextWatcher {
         mUidDetailProvider = new UidDetailProvider(this);
         mAppListAdapter = new AppListAdapter(this, mUidDetailProvider, mAllApps, mSections, mPositions);
         mAppListView = (PinnedHeaderListView) findViewById(R.id.apps);
+        mAppListView.setEmptyView(findViewById(R.id.app_list_empty));
         mAppListView.setVisibility(View.VISIBLE);
         mAppListView.setAdapter(mAppListAdapter);
         mAppListView.setOnScrollListener(mAppListAdapter);

@@ -27,4 +27,12 @@
         <item name="android:dividerHeight">0.0dip</item>
     </style>
 
+    <style name="base_large_progressbar_style">
+        <item name="android:maxWidth">38.0dip</item>
+        <item name="android:maxHeight">38.0dip</item>
+        <item name="android:indeterminateDrawable">@anim/base_loading_large_anim</item>
+        <item name="android:minWidth">38.0dip</item>
+        <item name="android:minHeight">38.0dip</item>
+    </style>
+
 </resources>
