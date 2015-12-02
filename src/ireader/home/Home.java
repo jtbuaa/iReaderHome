@@ -37,7 +37,7 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,6 +78,9 @@ public class Home extends Activity implements TextWatcher {
                 this).inflate(
                 R.layout.biz_plugin_weather_list_group_item, mAppListView,
                 false));
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
         mLetter = (BladeView) findViewById(R.id.app_bladeview);
         mLetter.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -90,6 +93,7 @@ public class Home extends Activity implements TextWatcher {
                 }
             }
         });
+        mLetter.setCharHeight(dm.density);
 
         mSearchEditText = (EditText) findViewById(R.id.search_edit);
         mSearchEditText.addTextChangedListener(this);
@@ -250,11 +254,9 @@ public class Home extends Activity implements TextWatcher {
             String action = intent.getAction();
             String packageName = intent.getDataString().split(":")[1];
             if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
-                Log.d("==========remove", packageName);
                 removeInfo(packageName);
                 prepareAll();
             } else if (action.equals(Intent.ACTION_PACKAGE_ADDED)) {
-                Log.d("==========added", packageName);
                 Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
                 mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
                 mainIntent.setPackage(packageName);

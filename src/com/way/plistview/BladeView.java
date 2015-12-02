@@ -29,6 +29,10 @@ public class BladeView extends View {
     private TextView mPopupText;
     private int mCharHeight = 36;
 
+    public void setCharHeight(float density) {
+        mCharHeight = (int) (12 * density);
+    }
+
     public BladeView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         //mCharHeight = context.getResources().getDimensionPixelSize(R.dimen.blade_view_text_size);
