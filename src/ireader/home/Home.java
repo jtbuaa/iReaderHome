@@ -42,12 +42,15 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 
 public class Home extends Activity implements TextWatcher {
 
     private List<ResolveInfo> mTmpAllApps, mAllApps;
     private static final int MIN_SIZE = 20;
     private PinnedHeaderListView mAppListView;
+    private ListView mSearchListView;
+    private View mAppContainer, mSearchContainer;
     private BladeView mLetter;
     private AppListAdapter mAppListAdapter;
     private AppSelectListAdapter mAppSelectListAdapter;
@@ -97,6 +100,10 @@ public class Home extends Activity implements TextWatcher {
 
         mSearchEditText = (EditText) findViewById(R.id.search_edit);
         mSearchEditText.addTextChangedListener(this);
+
+        mAppContainer = findViewById(R.id.app_content_container);
+        mSearchContainer = findViewById(R.id.search_content_container);
+        mSearchListView = (ListView) findViewById(R.id.search_list);
 
         // for package add/remove
         IntentFilter filter = new IntentFilter();
@@ -283,12 +290,15 @@ public class Home extends Activity implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (TextUtils.isEmpty(s)) {
-            mAppListView.setTextFilterEnabled(false);
+            mAppContainer.setVisibility(View.VISIBLE);
+            mSearchContainer.setVisibility(View.GONE);
             mAppListView.setAdapter(mAppListAdapter);
         } else {
-            mAppListView.setTextFilterEnabled(true);
+            mAppContainer.setVisibility(View.GONE);
+            mSearchContainer.setVisibility(View.VISIBLE);
             mAppSelectListAdapter = new AppSelectListAdapter(Home.this, mUidDetailProvider, mAllApps, mSections, mPositions);
-            mAppListView.setAdapter(mAppSelectListAdapter);
+            mSearchListView.setTextFilterEnabled(true);
+            mSearchListView.setAdapter(mAppSelectListAdapter);
             mAppSelectListAdapter.getFilter().filter(s);
         }
     }

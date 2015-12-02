@@ -10,6 +10,7 @@
         layout="@layout/search_box" />
 
     <FrameLayout
+        android:id="@+id/app_content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/search_container" >
@@ -35,6 +36,28 @@
             android:layout_width="30dip"
             android:layout_height="match_parent"
             android:layout_gravity="right" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/search_content_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_container"
+        android:visibility="gone" >
+
+        <ListView
+            android:id="@+id/search_list"
+            style="@style/base_listview_style"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:cacheColorHint="#00000000"
+            android:focusableInTouchMode="true" />
+
+        <include
+            android:id="@+id/search_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/base_load_empty_layout" />
     </FrameLayout>
 
 </RelativeLayout>
