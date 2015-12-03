@@ -143,11 +143,15 @@ public class Home extends Activity implements TextWatcher {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getRepeatCount() == 0) {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
-                if (mIntent != null) {
-                    try {
-                        startActivity(mIntent);
-                        startService(new Intent(Home.this, Dragger.class));
-                    } catch(ActivityNotFoundException e) {}
+                if (mAppContainer.getVisibility() == View.VISIBLE) {
+                    if (mIntent != null) {
+                        try {
+                            startActivity(mIntent);
+                            startService(new Intent(Home.this, Dragger.class));
+                        } catch(ActivityNotFoundException e) {}
+                    }
+                } else {
+                    mSearchEditText.setText("");
                 }
                 return true;
             }

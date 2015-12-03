@@ -52,11 +52,16 @@
             android:cacheColorHint="#00000000"
             android:focusableInTouchMode="true" />
 
-        <include
+        <TextView
             android:id="@+id/search_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/base_load_empty_layout" />
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="5dip"
+            android:text="no match"
+            android:textColor="#ff2f2f2f"
+            android:textSize="15sp" />
     </FrameLayout>
 
 </RelativeLayout>

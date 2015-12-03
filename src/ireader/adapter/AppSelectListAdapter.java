@@ -52,6 +52,7 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
         mProvider = provider;
         mSections = sections;
         mPositions = positions;
+        mResultApps = new ArrayList<ResolveInfo>();
     }
 
     @Override
@@ -69,13 +70,13 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
             }
 
             protected FilterResults performFiltering(CharSequence s) {
-                String str = s.toString().toLowerCase();
+                String str = s.toString().toUpperCase();
                 FilterResults results = new FilterResults();
                 ArrayList<ResolveInfo> appList = new ArrayList<ResolveInfo>();
                 if (mAllApps != null && mAllApps.size() > 0) {
                     for (ResolveInfo info : mAllApps) {
                         // match label or first character
-                        if (Util.getLabel(info).indexOf(str) > -1
+                        if (Util.getLabel(info).toUpperCase().indexOf(str) > -1
                                 || Util.getPinyin(info).indexOf(str) > -1) {
                             appList.add(info);
                         }
