@@ -6,8 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * When booting is completed, it starts {@link ClipboardMonitor} service to monitor the states of
- * clipboard.
+ * Show dragger when booting is completed, otherwise can't show on iReader device
  */
 public class BootupMonitor extends BroadcastReceiver {
 

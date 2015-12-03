@@ -22,9 +22,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +38,6 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
     public List<ResolveInfo> mResultApps;
     protected boolean mIsSearching = false;
     private Context mContext;
-    private PackageManager mPm;
     private final UidDetailProvider mProvider;
     private List<String> mSections;
     private List<Integer> mPositions;
@@ -56,7 +53,6 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
         super(context, 0, apps);
         mAllApps = apps;
         mContext = context;
-        mPm = mContext.getPackageManager();
         mProvider = provider;
         mSections = sections;
         mPositions = positions;
@@ -82,15 +78,9 @@ public class AppListAdapter extends ArrayAdapter<ResolveInfo> implements Section
             info = mAllApps.get(position);
         }
         title.setText(Util.getLabel(info));
-        packageName.setText(info.activityInfo.packageName);
-        try {
-            String version = mPm.getPackageInfo(info.activityInfo.packageName, 0).versionName;
-            if ((version == null) || (version.trim().equals("")))
-                version = String.valueOf(mPm.getPackageInfo(info.activityInfo.packageName, 0).versionCode);
-            versionName.setText(version);
-        } catch (NameNotFoundException e) {
-            versionName.setText(e.toString());
-        }
+        // show apk name maybe more useful
+        packageName.setText(info.activityInfo.applicationInfo.sourceDir);
+        versionName.setText(Util.getVersion(info));
 
         TextView group = (TextView) convertView.findViewById(R.id.group_title);
         int section = getSectionForPosition(position);

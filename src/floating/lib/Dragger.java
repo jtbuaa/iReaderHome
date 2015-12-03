@@ -3,7 +3,6 @@ package floating.lib;
 
 import ireader.home.Home;
 import ireader.home.R;
-import ireader.home.R.drawable;
 import android.content.Intent;
 import android.util.FloatMath;
 

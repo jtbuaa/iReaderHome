@@ -30,22 +30,20 @@ public class BladeView extends View {
     private int mCharHeight = 36;
 
     public void setCharHeight(float density) {
+        // adjust character height according to screen density
         mCharHeight = (int) (12 * density);
     }
 
     public BladeView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        //mCharHeight = context.getResources().getDimensionPixelSize(R.dimen.blade_view_text_size);
     }
 
     public BladeView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        //mCharHeight = context.getResources().getDimensionPixelSize(R.dimen.blade_view_text_size);
     }
 
     public BladeView(Context context) {
         super(context);
-        //mCharHeight = context.getResources().getDimensionPixelSize(R.dimen.blade_view_text_size);
     }
 
     @Override

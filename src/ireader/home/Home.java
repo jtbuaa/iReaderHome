@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -165,11 +166,21 @@ public class Home extends Activity implements TextWatcher {
             label = info.activityInfo.name;
         }
         Util.setLabel(info, label);
+
         StringBuilder pinyin = new StringBuilder("");
         for (int i = 0; i < label.length(); i++) {
             pinyin.append(mTo.getToken(label.charAt(i)).target);
         }
         Util.setPinyin(info, pinyin.toString().toUpperCase());
+
+        try {
+            String version = mPm.getPackageInfo(info.activityInfo.packageName, 0).versionName;
+            if ((version == null) || (version.trim().equals("")))
+                version = String.valueOf(mPm.getPackageInfo(info.activityInfo.packageName, 0).versionCode);
+            Util.setVersion(info, version);
+        } catch (NameNotFoundException e) {
+            Util.setVersion(info, e.toString());
+        }
     }
 
     private void preparePosition() {
