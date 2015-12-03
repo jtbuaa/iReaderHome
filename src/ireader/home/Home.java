@@ -114,6 +114,7 @@ public class Home extends Activity implements TextWatcher {
         mAppContainer = findViewById(R.id.app_content_container);
         mSearchContainer = findViewById(R.id.search_content_container);
         mSearchListView = (ListView) findViewById(R.id.search_list);
+        mSearchListView.setEmptyView(findViewById(R.id.search_empty));
 
         // for package add/remove
         IntentFilter filter = new IntentFilter();
