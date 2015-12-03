@@ -4,7 +4,7 @@ import android.content.pm.ResolveInfo;
 
 public class Util {
     // borrow the dataDir to store label, for loadLabel() is very time consuming
-    // use nativeLibraryDir to store first character
+    // use backupAgentName to store first character
     // use manageSpaceActivityName to store version
 
     public static void setLabel(ResolveInfo info, String label) {
@@ -16,11 +16,11 @@ public class Util {
     }
 
     public static void setPinyin(ResolveInfo info, String pinyin) {
-        info.activityInfo.applicationInfo.nativeLibraryDir = pinyin;
+        info.activityInfo.applicationInfo.backupAgentName = pinyin;
     }
 
     public static String getPinyin(ResolveInfo info) {
-        return info.activityInfo.applicationInfo.nativeLibraryDir;
+        return info.activityInfo.applicationInfo.backupAgentName;
     }
 
     public static void setVersion(ResolveInfo info, String version) {
