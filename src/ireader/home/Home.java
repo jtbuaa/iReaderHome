@@ -9,12 +9,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import base.util.HanziToPinyin;
 import base.util.StringComparator;
 import base.util.TaskHelper;
 import base.util.Util;
 
 import com.android.settings.net.UidDetailProvider;
+import com.github.promeg.pinyinhelper.Pinyin;
 import com.way.plistview.BladeView;
 import com.way.plistview.PinnedHeaderListView;
 import com.way.plistview.BladeView.OnItemClickListener;
@@ -161,7 +161,6 @@ public class Home extends Activity implements TextWatcher {
     }
 
     private static final String FORMAT = "^[A-Z]+$";
-    HanziToPinyin mTo = HanziToPinyin.getInstance();
     private void prepareInfo(ResolveInfo info) {
         String label = (String) info.loadLabel(mPm);
         if (TextUtils.isEmpty(label)) {
@@ -171,7 +170,7 @@ public class Home extends Activity implements TextWatcher {
 
         StringBuilder pinyin = new StringBuilder("");
         for (int i = 0; i < label.length(); i++) {
-            pinyin.append(mTo.getToken(label.charAt(i)).target);
+            pinyin.append(Pinyin.toPinyin(label.charAt(i)));
         }
         Util.setPinyin(info, pinyin.toString().toUpperCase());
 
