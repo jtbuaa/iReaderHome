@@ -322,7 +322,6 @@ public class Home extends Activity implements TextWatcher {
         if (TextUtils.isEmpty(s)) {
             mAppContainer.setVisibility(View.VISIBLE);
             mSearchContainer.setVisibility(View.GONE);
-            mAppListView.setAdapter(mAppListAdapter);
         } else {
             mAppContainer.setVisibility(View.GONE);
             mSearchContainer.setVisibility(View.VISIBLE);
