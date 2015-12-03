@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import base.util.HanziToPinyin;
 import base.util.StringComparator;
+import base.util.TaskHelper;
 import base.util.Util;
 
 import com.android.settings.net.UidDetailProvider;
@@ -72,7 +72,7 @@ public class Home extends Activity implements TextWatcher {
         setContentView(R.layout.main);
         mAppListView = (PinnedHeaderListView) findViewById(R.id.apps);
         mAppListView.setEmptyView(findViewById(R.id.app_list_empty));
-        new AsyncTask<Void, Void, Void>() {
+        AsyncTask<Void, Void, Void> firstTask = new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
                 getAllApp();
@@ -85,7 +85,8 @@ public class Home extends Activity implements TextWatcher {
             @Override
             protected void onPostExecute(Void result) {
             }
-        }.execute(null, null, null);
+        };
+        TaskHelper.execute(firstTask);
         mAppListView.setPinnedHeaderView(LayoutInflater.from(
                 this).inflate(
                 R.layout.biz_plugin_weather_list_group_item, mAppListView,
@@ -229,7 +230,7 @@ public class Home extends Activity implements TextWatcher {
 
         if (mTmpAllApps != null && mTmpAllApps.size() > 0) {
             // use AsyncTask to handle more data
-            new AsyncTask<Void, Void, Void>() {
+            AsyncTask<Void, Void, Void> restTask = new AsyncTask<Void, Void, Void>() {
                 @Override
                 protected Void doInBackground(Void... params) {
                     for (int i = 0; i < mTmpAllApps.size(); i++) {
@@ -242,7 +243,8 @@ public class Home extends Activity implements TextWatcher {
                 @Override
                 protected void onPostExecute(Void result) {
                 }
-            }.execute(null, null, null);
+            };
+            TaskHelper.execute(restTask);
         }
     }
 

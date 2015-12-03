@@ -1,7 +1,7 @@
 package com.android.settings.net;
 
+import base.util.TaskHelper;
 import ireader.home.R;
-import ireader.home.R.id;
 import android.content.pm.ResolveInfo;
 import android.os.AsyncTask;
 import android.view.View;
@@ -36,8 +36,9 @@ public class UidDetailTask extends AsyncTask<Void, Void, UidDetail> {
         if (cachedDetail != null) {
             bindView(cachedDetail, target);
         } else {
-            target.setTag(new UidDetailTask(provider, info, target)
-                    .execute(null, null, null));
+            UidDetailTask detailTask = new UidDetailTask(provider, info, target);
+            TaskHelper.execute((AsyncTask)detailTask);
+            target.setTag(detailTask);
         }
     }
 

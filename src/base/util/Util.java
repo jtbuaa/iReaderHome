@@ -2,7 +2,7 @@ package base.util;
 
 import android.content.pm.ResolveInfo;
 
-public class Util {
+public abstract class Util {
     // borrow the dataDir to store label, for loadLabel() is very time consuming
     // use backupAgentName to store first character
     // use manageSpaceActivityName to store version
