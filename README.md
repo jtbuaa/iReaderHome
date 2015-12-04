@@ -1,6 +1,6 @@
 # iReaderHome
 
-![Screen Shot](https://raw.githubusercontent.com/jtbuaa/iReadHome/master/screenshot/screenshot.png)
+![Screen Shot](https://raw.githubusercontent.com/jtbuaa/iReaderHome/master/screenshot/screenshot.png)
 
 a simple, light weight launcher for iReader device.
 
