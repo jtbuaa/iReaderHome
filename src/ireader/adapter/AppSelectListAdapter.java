@@ -71,13 +71,20 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
 
             protected FilterResults performFiltering(CharSequence s) {
                 String str = s.toString().toUpperCase();
+                StringBuilder builder = new StringBuilder("");
+                for (int i = 0; i < str.length(); i++) {
+                    builder.append(str.charAt(i));
+                    builder.append(".+");
+                }
+                String format = builder.toString();
                 FilterResults results = new FilterResults();
                 ArrayList<ResolveInfo> appList = new ArrayList<ResolveInfo>();
                 if (mAllApps != null && mAllApps.size() > 0) {
                     for (ResolveInfo info : mAllApps) {
-                        // match label or first character
-                        if (Util.getLabel(info).toUpperCase().indexOf(str) > -1
-                                || Util.getPinyin(info).indexOf(str) > -1) {
+                        // match label or pinyin
+                        String label = Util.getLabel(info).toUpperCase();
+                        String pinyin = Util.getPinyin(info);
+                        if (label.matches(format) || label.indexOf(str) > -1 || pinyin.matches(format) || pinyin.indexOf(str) > -1) {
                             appList.add(info);
                         }
                     }
