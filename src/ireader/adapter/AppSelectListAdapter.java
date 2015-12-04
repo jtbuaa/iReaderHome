@@ -99,12 +99,12 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
 
     @Override
     public int getCount() {
-        return mResultApps.size();
+        return mResultApps == null ? 0 : mResultApps.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mResultApps.get(position);
+        return mResultApps == null ? 0 : mResultApps.get(position);
     }
 
     @Override

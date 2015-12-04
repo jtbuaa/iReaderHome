@@ -48,8 +48,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -119,14 +117,10 @@ public class Home extends Activity implements TextWatcher {
 
         mSearchEditText = (EditText) findViewById(R.id.search_edit);
         mSearchEditText.addTextChangedListener(this);
-        mSearchEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+        mSearchEditText.setOnClickListener(new OnClickListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    startSearchBarAnimation();
-                } else {
-                    stopSearchBarAnimation();
-                }
+            public void onClick(View arg0) {
+                startSearchBarAnimation();
             }
         });
 
@@ -135,7 +129,7 @@ public class Home extends Activity implements TextWatcher {
         mSearchListView = (ListView) findViewById(R.id.search_list);
         mSearchListView.setEmptyView(findViewById(R.id.search_empty));
 
-        mShadowView = findViewById(R.id.shadow_background);
+        mShadowView = findViewById(R.id.shadow_view);
         mShadowView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -367,6 +361,9 @@ public class Home extends Activity implements TextWatcher {
     }
 
     private void startSearchBarAnimation() {
+        if (android.os.Build.VERSION.SDK_INT < 11) {
+            return;
+        }
         mShadowView.setAlpha(0);
         mShadowView.setVisibility(View.VISIBLE);
         if (mStartSearchAnimatorSet != null && !mStartSearchAnimatorSet.isRunning()) {
@@ -388,6 +385,9 @@ public class Home extends Activity implements TextWatcher {
     }
 
     private void stopSearchBarAnimation() {
+        if (android.os.Build.VERSION.SDK_INT < 11) {
+            return;
+        }
         if (mStopSearchAnimatorSet != null && !mStopSearchAnimatorSet.isRunning()) {
             mStopSearchAnimatorSet.start();
             return;
