@@ -37,6 +37,14 @@
             android:layout_gravity="right" />
     </FrameLayout>
 
+    <View
+        android:id="@+id/shadow_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/search_container"
+        android:background="#99000000"
+        android:visibility="gone" />
+
     <FrameLayout
         android:id="@+id/search_content_container"
         android:layout_width="match_parent"

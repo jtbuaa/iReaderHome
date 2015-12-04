@@ -22,6 +22,11 @@ import com.way.plistview.BladeView.OnItemClickListener;
 import de.greenrobot.event.EventBus;
 import floating.lib.Dragger;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -42,6 +47,9 @@ import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -52,6 +60,8 @@ public class Home extends Activity implements TextWatcher {
     private PinnedHeaderListView mAppListView;
     private ListView mSearchListView;
     private View mAppContainer, mSearchContainer;
+    private View mShadowView;
+    private AnimatorSet mStartSearchAnimatorSet, mStopSearchAnimatorSet;
     private BladeView mLetter;
     private AppListAdapter mAppListAdapter;
     private AppSelectListAdapter mAppSelectListAdapter;
@@ -87,9 +97,8 @@ public class Home extends Activity implements TextWatcher {
             }
         };
         TaskHelper.execute(firstTask);
-        mAppListView.setPinnedHeaderView(LayoutInflater.from(
-                this).inflate(
-                R.layout.biz_plugin_weather_list_group_item, mAppListView,
+        mAppListView.setPinnedHeaderView(
+                LayoutInflater.from(this).inflate(R.layout.biz_plugin_weather_list_group_item, mAppListView,
                 false));
 
         DisplayMetrics dm = new DisplayMetrics();
@@ -110,11 +119,29 @@ public class Home extends Activity implements TextWatcher {
 
         mSearchEditText = (EditText) findViewById(R.id.search_edit);
         mSearchEditText.addTextChangedListener(this);
+        mSearchEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    startSearchBarAnimation();
+                } else {
+                    stopSearchBarAnimation();
+                }
+            }
+        });
 
         mAppContainer = findViewById(R.id.app_content_container);
         mSearchContainer = findViewById(R.id.search_content_container);
         mSearchListView = (ListView) findViewById(R.id.search_list);
         mSearchListView.setEmptyView(findViewById(R.id.search_empty));
+
+        mShadowView = findViewById(R.id.shadow_background);
+        mShadowView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopSearchBarAnimation();
+            }
+        });
 
         // for package add/remove
         IntentFilter filter = new IntentFilter();
@@ -337,6 +364,51 @@ public class Home extends Activity implements TextWatcher {
 
     @Override
     public void afterTextChanged(Editable s) {
+    }
+
+    private void startSearchBarAnimation() {
+        mShadowView.setAlpha(0);
+        mShadowView.setVisibility(View.VISIBLE);
+        if (mStartSearchAnimatorSet != null && !mStartSearchAnimatorSet.isRunning()) {
+            mStartSearchAnimatorSet.start();
+            return;
+        }
+        PropertyValuesHolder holderAlpha = PropertyValuesHolder.ofFloat("alpha", 0, 1);
+        Animator animatorAlpha = ObjectAnimator.ofPropertyValuesHolder(mShadowView, holderAlpha);
+        mStartSearchAnimatorSet = new AnimatorSet();
+        mStartSearchAnimatorSet.setStartDelay(10);
+        mStartSearchAnimatorSet.setDuration(200);
+        mStartSearchAnimatorSet.playTogether(animatorAlpha);
+        mStartSearchAnimatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator arg0) {
+            }
+        });
+        mStartSearchAnimatorSet.start();
+    }
+
+    private void stopSearchBarAnimation() {
+        if (mStopSearchAnimatorSet != null && !mStopSearchAnimatorSet.isRunning()) {
+            mStopSearchAnimatorSet.start();
+            return;
+        }
+        PropertyValuesHolder holderAlpha = PropertyValuesHolder.ofFloat("alpha", 1, 0);
+        Animator animatorAlpha = ObjectAnimator.ofPropertyValuesHolder(mShadowView, holderAlpha);
+        mStopSearchAnimatorSet = new AnimatorSet();
+        mStopSearchAnimatorSet.setDuration(200);
+        mStopSearchAnimatorSet.playTogether(animatorAlpha);
+        mStopSearchAnimatorSet.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator arg0) {
+                //searchAnimationEnd();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator arg0) {
+                //searchAnimationEnd();
+            }
+        });
+        mStopSearchAnimatorSet.start();
     }
 
 }
