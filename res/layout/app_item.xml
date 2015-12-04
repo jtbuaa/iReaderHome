@@ -45,7 +45,8 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@id/app_icon"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:paddingLeft="5dip" >
 
             <TextView
                 android:id="@+id/version_name"
