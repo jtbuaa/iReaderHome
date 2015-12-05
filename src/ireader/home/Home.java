@@ -50,6 +50,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -74,6 +75,7 @@ public class Home extends Activity implements TextWatcher {
     private Map<String, Integer> mIndexer = new HashMap<String, Integer>();
 
     private EditText mSearchEditText;
+    private InputMethodManager mInputManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,6 +128,7 @@ public class Home extends Activity implements TextWatcher {
                 return false;
             }
         });
+        mInputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         mAppContainer = findViewById(R.id.app_content_container);
         mSearchContainer = findViewById(R.id.search_content_container);
@@ -346,6 +349,7 @@ public class Home extends Activity implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
+        mShadowView.setVisibility(View.GONE);
         if (TextUtils.isEmpty(s)) {
             mAppContainer.setVisibility(View.VISIBLE);
             mSearchContainer.setVisibility(View.GONE);
@@ -416,5 +420,7 @@ public class Home extends Activity implements TextWatcher {
 
     private void searchAnimationEnd() {
         mShadowView.setVisibility(View.GONE);
+        mSearchEditText.clearFocus();
+        mInputManager.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
     }
 }
