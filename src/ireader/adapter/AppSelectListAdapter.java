@@ -136,8 +136,8 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
         packageName.setText(info.activityInfo.applicationInfo.sourceDir);
         versionName.setText(Util.getVersion(info));
 
+        TextView group = (TextView) convertView.findViewById(R.id.group_title);
         if (!mIsSearching) {
-            TextView group = (TextView) convertView.findViewById(R.id.group_title);
             int section = getSectionForPosition(position);
             if (getPositionForSection(section) == position) {
                 group.setVisibility(View.VISIBLE);
@@ -145,6 +145,8 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
             } else {
                 group.setVisibility(View.GONE);
             }
+        } else {
+            group.setVisibility(View.GONE);
         }
         UidDetailTask.bindView(mProvider, info, convertView);
 

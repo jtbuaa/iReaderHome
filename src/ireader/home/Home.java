@@ -46,8 +46,10 @@ import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -117,10 +119,11 @@ public class Home extends Activity implements TextWatcher {
 
         mSearchEditText = (EditText) findViewById(R.id.search_edit);
         mSearchEditText.addTextChangedListener(this);
-        mSearchEditText.setOnClickListener(new OnClickListener() {
+        mSearchEditText.setOnTouchListener(new OnTouchListener() {
             @Override
-            public void onClick(View arg0) {
+            public boolean onTouch(View arg0, MotionEvent arg1) {
                 startSearchBarAnimation();
+                return false;
             }
         });
 
@@ -361,7 +364,7 @@ public class Home extends Activity implements TextWatcher {
     }
 
     private void startSearchBarAnimation() {
-        if (android.os.Build.VERSION.SDK_INT < 11) {
+        if (android.os.Build.VERSION.SDK_INT < 11 || mShadowView.getVisibility() == View.VISIBLE) {
             return;
         }
         mShadowView.setAlpha(0);
@@ -385,7 +388,7 @@ public class Home extends Activity implements TextWatcher {
     }
 
     private void stopSearchBarAnimation() {
-        if (android.os.Build.VERSION.SDK_INT < 11) {
+        if (android.os.Build.VERSION.SDK_INT < 11 || mShadowView.getVisibility() == View.GONE) {
             return;
         }
         if (mStopSearchAnimatorSet != null && !mStopSearchAnimatorSet.isRunning()) {
@@ -400,15 +403,18 @@ public class Home extends Activity implements TextWatcher {
         mStopSearchAnimatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator arg0) {
-                //searchAnimationEnd();
+                searchAnimationEnd();
             }
 
             @Override
             public void onAnimationCancel(Animator arg0) {
-                //searchAnimationEnd();
+                searchAnimationEnd();
             }
         });
         mStopSearchAnimatorSet.start();
     }
 
+    private void searchAnimationEnd() {
+        mShadowView.setVisibility(View.GONE);
+    }
 }
