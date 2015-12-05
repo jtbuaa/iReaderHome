@@ -18,6 +18,9 @@ import android.widget.TextView;
 
 public class AppListAdapter extends AppSelectListAdapter implements PinnedHeaderAdapter, OnScrollListener {
 
+    public void setApps(List<ResolveInfo> apps) {
+        mAllApps = apps;
+    }
     public void setSections(List<String> sections) {
         mSections = sections;
     }

@@ -34,6 +34,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -47,6 +48,8 @@ import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -57,8 +60,7 @@ import android.widget.ListView;
 
 public class Home extends Activity implements TextWatcher {
 
-    private List<ResolveInfo> mTmpAllApps, mAllApps;
-    private static final int MIN_SIZE = 20;
+    private List<ResolveInfo> mAllApps, mSystemApps, mUserApps, mCurrentApps;
     private PinnedHeaderListView mAppListView;
     private ListView mSearchListView;
     private View mAppContainer, mSearchContainer;
@@ -79,6 +81,11 @@ public class Home extends Activity implements TextWatcher {
     private TextViewUndoRedo mUndoRedo;
     private InputMethodManager mInputManager;
 
+    private static final int APP_ALL = 0;
+    private static final int APP_SYSTEM = 1;
+    private static final int APP_USER = 2;
+    //private static final int APP_GRIDVIEW = 3;
+    private int mAppGroup = APP_ALL;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -226,8 +233,20 @@ public class Home extends Activity implements TextWatcher {
         mSections.clear();
         mPositions.clear();
         mIndexer.clear();
-        for (int i = 0; i < mAllApps.size(); i++) {
-            String firstName = Util.getPinyin(mAllApps.get(i)).substring(0, 1);
+        switch (mAppGroup) {
+            case APP_ALL:
+                mCurrentApps = mAllApps;
+                break;
+            case APP_SYSTEM:
+                mCurrentApps = mSystemApps;
+                break;
+            case APP_USER:
+                mCurrentApps = mUserApps;
+                break;
+        }
+        Collections.sort(mCurrentApps, new StringComparator());// sort by name
+        for (int i = 0; i < mCurrentApps.size(); i++) {
+            String firstName = Util.getPinyin(mCurrentApps.get(i)).substring(0, 1);
             if (firstName.matches(FORMAT)) {
                 if (!mSections.contains(firstName)) {
                     mSections.add(firstName);
@@ -242,6 +261,9 @@ public class Home extends Activity implements TextWatcher {
                 }
             }
         }
+        if (mAppListAdapter != null) {
+            mAppListAdapter.setApps(mCurrentApps);
+        }
     }
 
     PackageManager mPm;
@@ -249,41 +271,20 @@ public class Home extends Activity implements TextWatcher {
         mPm = getPackageManager();
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        mTmpAllApps = mPm.queryIntentActivities(mainIntent, 0);
-        if (mTmpAllApps.size() <= MIN_SIZE) {
-            mAllApps = mTmpAllApps;
-            mTmpAllApps = null;
-            for (int i = 0; i < mAllApps.size(); i++) {
-                prepareInfo(mAllApps.get(i));
-            }
-            Collections.sort(mAllApps, new StringComparator());// sort by name
-            preparePosition();
-        } else {
-            mAllApps = new ArrayList<ResolveInfo>();
-            for (int i = 0; i < MIN_SIZE; i++) {
-                mAllApps.add(mTmpAllApps.remove(0));
-                prepareInfo(mAllApps.get(i));
+        mAllApps = mPm.queryIntentActivities(mainIntent, 0);
+        mSystemApps = new ArrayList<ResolveInfo>();
+        mUserApps = new ArrayList<ResolveInfo>();
+        for (int i = 0; i < mAllApps.size(); i++) {
+            ResolveInfo info = mAllApps.get(i);
+            prepareInfo(info);
+            if ((info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == ApplicationInfo.FLAG_SYSTEM) {
+                mSystemApps.add(info);
+            } else {
+                mUserApps.add(info);
             }
         }
+        preparePosition();
 
-        if (mTmpAllApps != null && mTmpAllApps.size() > 0) {
-            // use AsyncTask to handle more data
-            AsyncTask<Void, Void, Void> restTask = new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    for (int i = 0; i < mTmpAllApps.size(); i++) {
-                        prepareInfo(mTmpAllApps.get(i));
-                    }
-                    mHandler.sendEmptyMessage(1);
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void result) {
-                }
-            };
-            TaskHelper.execute(restTask);
-        }
     }
 
     private class AppHandler extends Handler {
@@ -294,11 +295,6 @@ public class Home extends Activity implements TextWatcher {
                     mAppListView.setOnScrollListener(mAppListAdapter);
                     break;
                 case 1:
-                    while (mTmpAllApps.size() > 0) {
-                        mAllApps.add(mTmpAllApps.remove(0));
-                    }
-                    Collections.sort(mAllApps, new StringComparator());// sort by name
-                    prepareAll();
                     break;
             }
         }
@@ -317,6 +313,8 @@ public class Home extends Activity implements TextWatcher {
             ResolveInfo info = mAllApps.get(i);
             if (info.activityInfo.packageName.equals(packageName)) {
                 mAllApps.remove(i);
+                mSystemApps.remove(info);
+                mUserApps.remove(info);
                 break;
             }
         }
@@ -341,7 +339,11 @@ public class Home extends Activity implements TextWatcher {
                     if (info.activityInfo.packageName.equals(packageName)) {
                         prepareInfo(info);
                         mAllApps.add(info);
-                        Collections.sort(mAllApps, new StringComparator());// sort by name
+                        if ((info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == ApplicationInfo.FLAG_SYSTEM) {
+                            mSystemApps.add(info);
+                        } else {
+                            mUserApps.add(info);
+                        }
                         prepareAll();
                         break;
                     }
@@ -363,7 +365,7 @@ public class Home extends Activity implements TextWatcher {
         } else {
             mAppContainer.setVisibility(View.GONE);
             mSearchContainer.setVisibility(View.VISIBLE);
-            mAppSelectListAdapter = new AppSelectListAdapter(Home.this, mUidDetailProvider, mAllApps, mSections, mPositions);
+            mAppSelectListAdapter = new AppSelectListAdapter(Home.this, mUidDetailProvider, mCurrentApps, mSections, mPositions);
             mSearchListView.setTextFilterEnabled(true);
             mSearchListView.setAdapter(mAppSelectListAdapter);
             mAppSelectListAdapter.getFilter().filter(s);
@@ -429,5 +431,23 @@ public class Home extends Activity implements TextWatcher {
         mShadowView.setVisibility(View.GONE);
         mSearchEditText.clearFocus();
         mInputManager.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, APP_ALL, 0, "all");
+        menu.add(0, APP_SYSTEM, 0, "system");
+        menu.add(0, APP_USER, 0, "user");
+        //menu.add(0, APP_GRIDVIEW, 0, "GridView");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (mAppGroup != item.getItemId()) {
+            mAppGroup = item.getItemId();
+            prepareAll();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

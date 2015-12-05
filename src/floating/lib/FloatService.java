@@ -137,7 +137,9 @@ public abstract class FloatService extends Service {
                         sEdit.putInt("layout_x", location[0]);// save position for accident exit
                         sEdit.putInt("layout_y", location[1]);// - statusBarHeight); // no statusbar if play video in fullscreen mode.
                         sEdit.putInt("layout_width", (int) (paramsF.width / dm.density));
-                        sEdit.apply();
+                        if (android.os.Build.VERSION.SDK_INT >= 11) {
+                            sEdit.apply();
+                        }
                         onFingerUp(event.getRawX() - initialTouchX, event.getRawY() - initialTouchY);
                     case MotionEvent.ACTION_POINTER_UP:
                         break;
