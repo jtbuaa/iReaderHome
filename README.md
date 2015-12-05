@@ -15,3 +15,5 @@ UidDetail from Settings of AOSP
 com.way.plistview and many others from http://git.oschina.net/way/EZWeather
 
 TinyPinyin from https://github.com/promeG/TinyPinyin
+
+TextViewUndoRedo from https://code.google.com/p/android/issues/detail?id=6458#c123

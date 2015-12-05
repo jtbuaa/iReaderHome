@@ -20,6 +20,7 @@ import com.way.plistview.PinnedHeaderListView;
 import com.way.plistview.BladeView.OnItemClickListener;
 
 import de.greenrobot.event.EventBus;
+import fi.iki.asb.android.logo.TextViewUndoRedo;
 import floating.lib.Dragger;
 
 import android.animation.Animator;
@@ -75,6 +76,7 @@ public class Home extends Activity implements TextWatcher {
     private Map<String, Integer> mIndexer = new HashMap<String, Integer>();
 
     private EditText mSearchEditText;
+    private TextViewUndoRedo mUndoRedo;
     private InputMethodManager mInputManager;
 
     @Override
@@ -128,6 +130,7 @@ public class Home extends Activity implements TextWatcher {
                 return false;
             }
         });
+        mUndoRedo = new TextViewUndoRedo(mSearchEditText);
         mInputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         mAppContainer = findViewById(R.id.app_content_container);
@@ -178,7 +181,11 @@ public class Home extends Activity implements TextWatcher {
                         } catch(ActivityNotFoundException e) {}
                     }
                 } else {
-                    mSearchEditText.setText("");
+                    if (mUndoRedo.getCanUndo()) {
+                        mUndoRedo.undo();
+                    } else if (mUndoRedo.getCanRedo()) {
+                        mUndoRedo.redo();
+                    }
                 }
                 return true;
             }
