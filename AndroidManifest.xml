@@ -24,7 +24,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
-                <!-- category android:name="android.intent.category.HOME" /-->
+                <!-- category android:name="android.intent.category.HOME" / -->
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -32,8 +32,8 @@
 
         <service
             android:name="floating.lib.Dragger"
-            android:process=":dragger"
-            android:exported="false" />
+            android:exported="false"
+            android:process=":dragger" />
 
         <receiver android:name="floating.lib.BootupMonitor" >
             <intent-filter>
@@ -41,6 +41,10 @@
             </intent-filter>
         </receiver>
 
+        <provider
+            android:name="ireader.provider.InfoProvider"
+            android:authorities="ireader.home.infoProvider"
+            android:exported="false" />
     </application>
 
 </manifest>

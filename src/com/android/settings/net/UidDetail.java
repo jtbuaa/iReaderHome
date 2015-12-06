@@ -20,7 +20,11 @@ import android.graphics.drawable.Drawable;
 
 public class UidDetail {
     public Drawable icon;
+    public String title;
     public String packageName;
     public String className;
+    public String versionName;
+    public String sourceDir;
+    public boolean isSystem;
     public int hashCode;
 }
