@@ -96,7 +96,7 @@ public class InfoProvider extends ContentProvider {
                 String versionName = (String) values.get(VERSION_NAME);
                 String sourceDir = (String) values.get(SOURCE_DIR);
                 Boolean isSystem = (Boolean) values.get(IS_SYSTEM);
-                int hashCode = (int) values.get(HASH_CODE);
+                int hashCode = (Integer) values.get(HASH_CODE);
                 break;
         }
         return 0;
@@ -123,7 +123,7 @@ public class InfoProvider extends ContentProvider {
         String versionName = (String) values.get(VERSION_NAME);
         String sourceDir = (String) values.get(SOURCE_DIR);
         Boolean isSystem = (Boolean) values.get(IS_SYSTEM);
-        int hashCode = (int) values.get(HASH_CODE);
+        int hashCode = (Integer) values.get(HASH_CODE);
     }
 
     @Override
