@@ -88,15 +88,7 @@ public class InfoProvider extends ContentProvider {
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         switch (sURLMatcher.match(uri)) {
             case INFO_DETAIL:
-                //jniUpdate(DB_PATH, name, value, version, level);
-                byte[] icon = (byte[]) values.get(ICON);
-                String title = (String) values.get(TITLE);
-                String packageName = (String) values.get(PACKAGE_NAME);
-                String className = (String) values.get(CLASS_NAME);
-                String versionName = (String) values.get(VERSION_NAME);
-                String sourceDir = (String) values.get(SOURCE_DIR);
-                Boolean isSystem = (Boolean) values.get(IS_SYSTEM);
-                int hashCode = (Integer) values.get(HASH_CODE);
+                updateValue(values);
                 break;
         }
         return 0;
@@ -115,15 +107,11 @@ public class InfoProvider extends ContentProvider {
         return values.length;
     }
 
-    private static void updateValue(ContentValues values) {
-        byte[] icon = (byte[]) values.get(ICON);
-        String title = (String) values.get(TITLE);
-        String packageName = (String) values.get(PACKAGE_NAME);
-        String className = (String) values.get(CLASS_NAME);
-        String versionName = (String) values.get(VERSION_NAME);
-        String sourceDir = (String) values.get(SOURCE_DIR);
-        Boolean isSystem = (Boolean) values.get(IS_SYSTEM);
+    private void updateValue(ContentValues values) {
         int hashCode = (Integer) values.get(HASH_CODE);
+        String sql = String.format("delete from %s where %s = '%s';", TABLE_INFO_DETAIL, HASH_CODE, hashCode);
+        mDb.execSQL(sql);
+        mDb.insert(TABLE_INFO_DETAIL, null, values);
     }
 
     @Override
