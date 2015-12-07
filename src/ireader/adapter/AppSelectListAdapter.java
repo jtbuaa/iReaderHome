@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,7 +118,7 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.app_item, parent, false);
             convertView.findViewById(R.id.app_item).setOnClickListener(launchClickListener);
-            convertView.findViewById(R.id.version_name).setOnClickListener(uninstallClickListener);
+            convertView.findViewById(R.id.version_name).setOnClickListener(detailClickListener);
         }
         final TextView title = (TextView) convertView.findViewById(R.id.app_name);
         final TextView versionName = (TextView) convertView.findViewById(R.id.version_name);
@@ -172,15 +173,15 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
         }
     };
 
-    private OnClickListener uninstallClickListener = new OnClickListener() {
+    private OnClickListener detailClickListener = new OnClickListener() {
         @Override
         public void onClick(View view) {
             UidDetail detail = (UidDetail)view.getTag();
             if (detail == null) {
                 return;
             }
-            Uri uri = Uri.fromParts("package", detail.packageName , null);
-            Intent intent = new Intent(Intent.ACTION_DELETE, uri);
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", detail.packageName, null));
             try {
                 mContext.startActivity(intent);
             } catch(ActivityNotFoundException e) {}
