@@ -18,7 +18,7 @@ package com.android.settings.net;
 
 import java.nio.ByteBuffer;
 
-import ireader.provider.InfoProvider;
+import ireader.provider.UidDetailDbProvider;
 import base.util.Util;
 import android.content.ContentValues;
 import android.content.Context;
@@ -78,20 +78,20 @@ public class UidDetailProvider {
         final PackageManager pm = mContext.getPackageManager();
 
         final UidDetail detail = new UidDetail();
-        String selection = String.format("%s = %d", InfoProvider.HASH_CODE, info.hashCode());
-        Cursor cursor = mContext.getContentResolver().query(InfoProvider.CONTENT_URI_APP_DETAIL, null, selection, null, null);
+        String selection = String.format("%s = %d", UidDetailDbProvider.HASH_CODE, info.hashCode());
+        Cursor cursor = mContext.getContentResolver().query(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, null, selection, null, null);
         if (cursor != null && cursor.moveToFirst()) {
-            byte[] blob = cursor.getBlob(cursor.getColumnIndex(InfoProvider.ICON));
-            int width = cursor.getInt(cursor.getColumnIndex(InfoProvider.ICON_WIDTH));
-            int height = cursor.getInt(cursor.getColumnIndex(InfoProvider.ICON_HEIGHT));
+            byte[] blob = cursor.getBlob(cursor.getColumnIndex(UidDetailDbProvider.ICON));
+            int width = cursor.getInt(cursor.getColumnIndex(UidDetailDbProvider.ICON_WIDTH));
+            int height = cursor.getInt(cursor.getColumnIndex(UidDetailDbProvider.ICON_HEIGHT));
             detail.icon = getDrawableFromBlob(blob, width, height);
-            detail.title = cursor.getString(cursor.getColumnIndex(InfoProvider.TITLE));
-            detail.packageName = cursor.getString(cursor.getColumnIndex(InfoProvider.PACKAGE_NAME));
-            detail.className = cursor.getString(cursor.getColumnIndex(InfoProvider.CLASS_NAME));
-            detail.versionName = cursor.getString(cursor.getColumnIndex(InfoProvider.VERSION_NAME));
-            detail.sourceDir = cursor.getString(cursor.getColumnIndex(InfoProvider.SOURCE_DIR));
-            detail.isSystem = cursor.getInt(cursor.getColumnIndex(InfoProvider.IS_SYSTEM)) == 1 ? true : false;
-            detail.hashCode = cursor.getInt(cursor.getColumnIndex(InfoProvider.HASH_CODE));
+            detail.title = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.TITLE));
+            detail.packageName = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.PACKAGE_NAME));
+            detail.className = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.CLASS_NAME));
+            detail.versionName = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.VERSION_NAME));
+            detail.sourceDir = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.SOURCE_DIR));
+            detail.isSystem = cursor.getInt(cursor.getColumnIndex(UidDetailDbProvider.IS_SYSTEM)) == 1 ? true : false;
+            detail.hashCode = cursor.getInt(cursor.getColumnIndex(UidDetailDbProvider.HASH_CODE));
         } else {
             detail.icon = info.loadIcon(pm);
             detail.title = Util.getLabel(info);
@@ -103,18 +103,18 @@ public class UidDetailProvider {
             detail.hashCode = info.hashCode();
 
             ContentValues updateValue = new ContentValues();
-            updateValue.put(InfoProvider.ICON_WIDTH, detail.icon.getIntrinsicWidth());
-            updateValue.put(InfoProvider.ICON_HEIGHT, detail.icon.getIntrinsicHeight());
-            updateValue.put(InfoProvider.HASH_CODE, detail.hashCode);
-            updateValue.put(InfoProvider.ICON, getBlobFromIcon(detail.icon));
-            updateValue.put(InfoProvider.TITLE, detail.title);
-            updateValue.put(InfoProvider.PACKAGE_NAME, detail.packageName);
-            updateValue.put(InfoProvider.CLASS_NAME, detail.className);
-            updateValue.put(InfoProvider.VERSION_NAME, detail.versionName);
-            updateValue.put(InfoProvider.SOURCE_DIR, detail.sourceDir);
-            updateValue.put(InfoProvider.IS_SYSTEM, detail.isSystem);
-            updateValue.put(InfoProvider.HASH_CODE, detail.hashCode);
-            mContext.getContentResolver().update(InfoProvider.CONTENT_URI_APP_DETAIL, updateValue, null, null);
+            updateValue.put(UidDetailDbProvider.ICON_WIDTH, detail.icon.getIntrinsicWidth());
+            updateValue.put(UidDetailDbProvider.ICON_HEIGHT, detail.icon.getIntrinsicHeight());
+            updateValue.put(UidDetailDbProvider.HASH_CODE, detail.hashCode);
+            updateValue.put(UidDetailDbProvider.ICON, getBlobFromIcon(detail.icon));
+            updateValue.put(UidDetailDbProvider.TITLE, detail.title);
+            updateValue.put(UidDetailDbProvider.PACKAGE_NAME, detail.packageName);
+            updateValue.put(UidDetailDbProvider.CLASS_NAME, detail.className);
+            updateValue.put(UidDetailDbProvider.VERSION_NAME, detail.versionName);
+            updateValue.put(UidDetailDbProvider.SOURCE_DIR, detail.sourceDir);
+            updateValue.put(UidDetailDbProvider.IS_SYSTEM, detail.isSystem);
+            updateValue.put(UidDetailDbProvider.HASH_CODE, detail.hashCode);
+            mContext.getContentResolver().update(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, updateValue, null, null);
         }
         if (cursor != null) {
             cursor.close();

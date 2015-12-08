@@ -42,7 +42,7 @@
         </receiver>
 
         <provider
-            android:name="ireader.provider.InfoProvider"
+            android:name="ireader.provider.UidDetailDbProvider"
             android:authorities="ireader.home.infoProvider"
             android:exported="false" />
     </application>

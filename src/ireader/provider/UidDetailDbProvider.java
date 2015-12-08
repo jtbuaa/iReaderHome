@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 
-public class InfoProvider extends ContentProvider {
+public class UidDetailDbProvider extends ContentProvider {
 
     public static final String TAG = "InfoProvider";
     private final static String AUTHORITY = "ireader.home.infoProvider";
@@ -62,7 +62,7 @@ public class InfoProvider extends ContentProvider {
         return true;
     }
 
-    public InfoProvider() {
+    public UidDetailDbProvider() {
         super();
     }
 
