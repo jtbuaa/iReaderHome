@@ -80,7 +80,7 @@ public class UidDetailProvider {
         final UidDetail detail = new UidDetail();
         String selection = String.format("%s = %d", InfoProvider.HASH_CODE, info.hashCode());
         Cursor cursor = mContext.getContentResolver().query(InfoProvider.CONTENT_URI_APP_DETAIL, null, selection, null, null);
-        if (cursor.moveToFirst()) {
+        if (cursor != null && cursor.moveToFirst()) {
             byte[] blob = cursor.getBlob(cursor.getColumnIndex(InfoProvider.ICON));
             int width = cursor.getInt(cursor.getColumnIndex(InfoProvider.ICON_WIDTH));
             int height = cursor.getInt(cursor.getColumnIndex(InfoProvider.ICON_HEIGHT));
@@ -116,7 +116,9 @@ public class UidDetailProvider {
             updateValue.put(InfoProvider.HASH_CODE, detail.hashCode);
             mContext.getContentResolver().update(InfoProvider.CONTENT_URI_APP_DETAIL, updateValue, null, null);
         }
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
 
         return detail;
     }
