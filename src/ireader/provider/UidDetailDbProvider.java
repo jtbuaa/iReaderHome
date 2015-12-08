@@ -5,10 +5,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.util.Log;
 
 public class UidDetailDbProvider extends ContentProvider {
 
@@ -37,18 +37,6 @@ public class UidDetailDbProvider extends ContentProvider {
     static {
         sURLMatcher.addURI(AUTHORITY, TABLE_INFO_DETAIL, INFO_DETAIL);
     }
-
-    private String[] mVirtualColumns = new String[]{
-            ICON,
-            ICON_WIDTH,
-            ICON_HEIGHT,
-            TITLE,
-            PACKAGE_NAME,
-            CLASS_NAME,
-            VERSION_NAME,
-            SOURCE_DIR,
-            HASH_CODE
-    };
 
     private Context mContext;
     protected SQLiteDatabase mDb;
@@ -123,22 +111,12 @@ public class UidDetailDbProvider extends ContentProvider {
         Cursor cursor = null;
         switch (sURLMatcher.match(uri)) {
             case INFO_DETAIL:
-                cursor = getDetail(uri, selection, selectionArgs);
+                String sql = String.format("select * from %s where %s = '%s';", TABLE_INFO_DETAIL, HASH_CODE, selection);
+                cursor = mDb.rawQuery(sql, selectionArgs);
+                Log.d("==========", cursor.getCount() + sql);
                 break;
         }
         return cursor;
-    }
-
-    private Cursor getDetail(Uri uri, String selection, String[] selectionArgs) {
-        if (selectionArgs != null) {
-            MatrixCursor cursor = new MatrixCursor(mVirtualColumns);
-            Object[] obj = new Object[]{
-                    selectionArgs[0],
-            };
-            cursor.addRow(obj);
-            return cursor;
-        }
-        return null;
     }
 
     private DatabaseHelper getDatabaseHelper(Context context) {

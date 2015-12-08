@@ -78,7 +78,7 @@ public class UidDetailProvider {
         final PackageManager pm = mContext.getPackageManager();
 
         final UidDetail detail = new UidDetail();
-        String selection = String.format("%s = %d", UidDetailDbProvider.HASH_CODE, info.hashCode());
+        String selection = String.format("%d", info.hashCode());
         Cursor cursor = mContext.getContentResolver().query(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, null, selection, null, null);
         if (cursor != null && cursor.moveToFirst()) {
             byte[] blob = cursor.getBlob(cursor.getColumnIndex(UidDetailDbProvider.ICON));
