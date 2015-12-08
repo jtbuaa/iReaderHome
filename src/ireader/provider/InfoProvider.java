@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 public class InfoProvider extends ContentProvider {
@@ -23,6 +22,8 @@ public class InfoProvider extends ContentProvider {
     private static final int INFO_DETAIL = 0;
 
     public static final String ICON = "icon";
+    public static final String ICON_WIDTH = "icon_width";
+    public static final String ICON_HEIGHT = "icon_height";
     public static final String TITLE = "title";
     public static final String PACKAGE_NAME = "package_name";
     public static final String CLASS_NAME = "class_name";
@@ -39,6 +40,8 @@ public class InfoProvider extends ContentProvider {
 
     private String[] mVirtualColumns = new String[]{
             ICON,
+            ICON_WIDTH,
+            ICON_HEIGHT,
             TITLE,
             PACKAGE_NAME,
             CLASS_NAME,
@@ -158,6 +161,8 @@ public class InfoProvider extends ContentProvider {
             db.execSQL("CREATE TABLE " + TABLE_INFO_DETAIL + "(" +
                     TITLE + " TEXT NOT NULL," +
                     ICON + " BLOB," +
+                    ICON_WIDTH + " INTEGER NOT NULL," +
+                    ICON_HEIGHT + " INTEGER NOT NULL," +
                     PACKAGE_NAME + " TEXT NOT NULL," +
                     CLASS_NAME + " TEXT NOT NULL," +
                     VERSION_NAME + " TEXT NOT NULL," +
