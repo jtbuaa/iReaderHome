@@ -16,15 +16,25 @@
 
 package com.android.settings.net;
 
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 
 public class UidDetail {
-    public Drawable icon;
-    public String title;
+    // must get at first, from package manager or db. will use it to sort.
+    public String pinyin;
+
+    // below can get at first, which have no influence on performance
     public String packageName;
     public String className;
-    public String versionName;
     public String sourceDir;
     public boolean isSystem;
     public int hashCode;
+
+    // below is time consuming, need get in async task
+    public Drawable icon;
+    public String title;
+    public String versionName;
+
+    // may be null if the uidDetail get from db
+    public ResolveInfo info;
 }

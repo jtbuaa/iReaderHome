@@ -24,6 +24,7 @@ public class UidDetailDbProvider extends ContentProvider {
     public static final String ICON_WIDTH = "icon_width";
     public static final String ICON_HEIGHT = "icon_height";
     public static final String TITLE = "title";
+    public static final String PINYIN = "pinyin";
     public static final String PACKAGE_NAME = "package_name";
     public static final String CLASS_NAME = "class_name";
     public static final String VERSION_NAME = "version_name";
@@ -136,6 +137,7 @@ public class UidDetailDbProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + TABLE_INFO_DETAIL + "(" +
                     TITLE + " TEXT NOT NULL," +
+                    PINYIN + " TEXT NOT NULL," +
                     ICON + " BLOB," +
                     ICON_WIDTH + " INTEGER NOT NULL," +
                     ICON_HEIGHT + " INTEGER NOT NULL," +

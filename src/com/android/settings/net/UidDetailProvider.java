@@ -87,6 +87,7 @@ public class UidDetailProvider {
                 int height = cursor.getInt(cursor.getColumnIndex(UidDetailDbProvider.ICON_HEIGHT));
                 detail.icon = getDrawableFromBlob(blob, width, height);
                 detail.title = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.TITLE));
+                detail.pinyin = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.PINYIN));
                 detail.packageName = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.PACKAGE_NAME));
                 detail.className = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.CLASS_NAME));
                 detail.versionName = cursor.getString(cursor.getColumnIndex(UidDetailDbProvider.VERSION_NAME));
@@ -105,6 +106,7 @@ public class UidDetailProvider {
             updateValue.put(UidDetailDbProvider.ICON_HEIGHT, detail.icon.getIntrinsicHeight());
             updateValue.put(UidDetailDbProvider.ICON, getBlobFromIcon(detail.icon));
             updateValue.put(UidDetailDbProvider.TITLE, detail.title);
+            updateValue.put(UidDetailDbProvider.PINYIN, detail.pinyin);
             updateValue.put(UidDetailDbProvider.PACKAGE_NAME, detail.packageName);
             updateValue.put(UidDetailDbProvider.CLASS_NAME, detail.className);
             updateValue.put(UidDetailDbProvider.VERSION_NAME, detail.versionName);
@@ -124,6 +126,7 @@ public class UidDetailProvider {
         final PackageManager pm = mContext.getPackageManager();
         detail.icon = info.loadIcon(pm);
         detail.title = Util.getLabel(info);
+        detail.pinyin = Util.getPinyin(info);
         detail.packageName = info.activityInfo.packageName;
         detail.className = info.activityInfo.name;
         detail.versionName = Util.getVersion(info);
