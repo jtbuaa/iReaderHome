@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.util.Log;
 
 public class UidDetailDbProvider extends ContentProvider {
 
@@ -113,7 +112,6 @@ public class UidDetailDbProvider extends ContentProvider {
             case INFO_DETAIL:
                 String sql = String.format("select * from %s where %s = '%s';", TABLE_INFO_DETAIL, HASH_CODE, selection);
                 cursor = mDb.rawQuery(sql, selectionArgs);
-                Log.d("==========", cursor.getCount() + sql);
                 break;
         }
         return cursor;
