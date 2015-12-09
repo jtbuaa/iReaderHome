@@ -77,9 +77,9 @@ public class UidDetailProvider {
      */
     private UidDetail buildUidDetail(ResolveInfo info) {
         final UidDetail detail = new UidDetail();
-        String selection = String.format("%d", info.activityInfo.packageName.hashCode());
+        String hashCode = String.format("%d", info.activityInfo.packageName.hashCode());
         ContentResolver contentResolver = mContext.getContentResolver();
-        Cursor cursor = contentResolver.query(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, null, selection, null, null);
+        Cursor cursor = contentResolver.query(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, null, UidDetailDbProvider.HASH_CODE + "=?", new String[] {hashCode}, UidDetailDbProvider.PINYIN);
         if (cursor != null && cursor.moveToFirst()) {
             try {
                 byte[] blob = cursor.getBlob(cursor.getColumnIndex(UidDetailDbProvider.ICON));

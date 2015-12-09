@@ -111,8 +111,7 @@ public class UidDetailDbProvider extends ContentProvider {
         Cursor cursor = null;
         switch (sURLMatcher.match(uri)) {
             case INFO_DETAIL:
-                String sql = String.format("select * from %s where %s = '%s';", TABLE_INFO_DETAIL, HASH_CODE, selection);
-                cursor = mDb.rawQuery(sql, selectionArgs);
+                cursor = mDb.query(TABLE_INFO_DETAIL, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
         }
         return cursor;
