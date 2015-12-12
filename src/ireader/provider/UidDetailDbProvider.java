@@ -55,7 +55,8 @@ public class UidDetailDbProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(Uri uri, String whereClause, String[] whereArgs) {
+        mDb.delete(TABLE_INFO_DETAIL, whereClause, whereArgs);
         return 0;
     }
 

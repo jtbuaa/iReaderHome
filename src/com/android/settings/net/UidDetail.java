@@ -32,9 +32,11 @@ public class UidDetail {
 
     // below is time consuming, need get in async task
     public Drawable icon;
-    public String title;
+    public String label;
     public String versionName;
 
     // may be null if the uidDetail get from db
     public ResolveInfo info;
+
+    public boolean found = false;
 }

@@ -3,6 +3,7 @@ package ireader.home;
 
 import ireader.adapter.AppListAdapter;
 import ireader.adapter.AppSelectListAdapter;
+import ireader.provider.UidDetailDbProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +14,7 @@ import base.util.StringComparator;
 import base.util.TaskHelper;
 import base.util.Util;
 
+import com.android.settings.net.UidDetail;
 import com.android.settings.net.UidDetailProvider;
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.way.plistview.BladeView;
@@ -38,6 +40,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,7 +63,7 @@ import android.widget.ListView;
 
 public class Home extends Activity implements TextWatcher {
 
-    private List<ResolveInfo> mAllApps, mSystemApps, mUserApps, mCurrentApps;
+    private List<UidDetail> mAllApps, mSystemApps, mUserApps, mCurrentApps;
     private PinnedHeaderListView mAppListView;
     private ListView mSearchListView;
     private View mAppContainer, mSearchContainer;
@@ -99,12 +102,8 @@ public class Home extends Activity implements TextWatcher {
                 getAllApp();
                 mUidDetailProvider = new UidDetailProvider(Home.this);
                 mAppListAdapter = new AppListAdapter(Home.this, mUidDetailProvider, mAllApps, mSections, mPositions);
-                mHandler.sendEmptyMessage(0);
+                mHandler.sendEmptyMessage(GET_ALL_OK);
                 return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void result) {
             }
         };
         TaskHelper.execute(firstTask);
@@ -206,27 +205,28 @@ public class Home extends Activity implements TextWatcher {
     }
 
     private static final String FORMAT = "^[A-Z]+$";
-    private void prepareInfo(ResolveInfo info) {
+    private UidDetail prepareInfo(ResolveInfo info, boolean block) {
+        UidDetail detail = new UidDetail();
+        detail.info = info;
+
         String label = (String) info.loadLabel(mPm);
         if (TextUtils.isEmpty(label)) {
             label = info.activityInfo.name;
         }
-        Util.setLabel(info, label);
+        detail.label = label;
 
-        StringBuilder pinyin = new StringBuilder("");
-        for (int i = 0; i < label.length(); i++) {
-            pinyin.append(Pinyin.toPinyin(label.charAt(i)));
+        detail.className = info.activityInfo.name;
+        detail.hashCode = info.activityInfo.packageName.hashCode();
+        detail.isSystem = (info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == ApplicationInfo.FLAG_SYSTEM;
+        detail.packageName = info.activityInfo.packageName;
+        detail.sourceDir = info.activityInfo.applicationInfo.sourceDir;
+        if (block) {
+            Util.extractDetail(detail, mPm);
+            Util.update(detail, getContentResolver());
+        } else {
+            detail.pinyin = Pinyin.toPinyin(label.charAt(0)).toUpperCase();
         }
-        Util.setPinyin(info, pinyin.toString().toUpperCase());
-
-        try {
-            String version = mPm.getPackageInfo(info.activityInfo.packageName, 0).versionName;
-            if ((version == null) || (version.trim().equals("")))
-                version = String.valueOf(mPm.getPackageInfo(info.activityInfo.packageName, 0).versionCode);
-            Util.setVersion(info, version);
-        } catch (NameNotFoundException e) {
-            Util.setVersion(info, e.toString());
-        }
+        return detail;
     }
 
     private void preparePosition() {
@@ -246,7 +246,7 @@ public class Home extends Activity implements TextWatcher {
         }
         Collections.sort(mCurrentApps, new StringComparator());// sort by name
         for (int i = 0; i < mCurrentApps.size(); i++) {
-            String firstName = Util.getPinyin(mCurrentApps.get(i)).substring(0, 1);
+            String firstName = mCurrentApps.get(i).pinyin.substring(0, 1);
             if (firstName.matches(FORMAT)) {
                 if (!mSections.contains(firstName)) {
                     mSections.add(firstName);
@@ -268,34 +268,165 @@ public class Home extends Activity implements TextWatcher {
 
     PackageManager mPm;
     private void getAllApp() {
+        mAllApps = new ArrayList<UidDetail>();
+        mSystemApps = new ArrayList<UidDetail>();
+        mUserApps = new ArrayList<UidDetail>();
+        boolean needSyncDB = true;// always true if read from db
         mPm = getPackageManager();
-        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        mAllApps = mPm.queryIntentActivities(mainIntent, 0);
-        mSystemApps = new ArrayList<ResolveInfo>();
-        mUserApps = new ArrayList<ResolveInfo>();
-        for (int i = 0; i < mAllApps.size(); i++) {
-            ResolveInfo info = mAllApps.get(i);
-            prepareInfo(info);
-            if ((info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == ApplicationInfo.FLAG_SYSTEM) {
-                mSystemApps.add(info);
-            } else {
-                mUserApps.add(info);
+        Cursor cursor = getContentResolver().query(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, null, null, null, UidDetailDbProvider.PINYIN);
+        if (cursor != null && cursor.moveToFirst()) {
+            while (cursor.moveToNext()) {
+                UidDetail detail = new UidDetail();
+                Util.query(detail, cursor);
+                if (detail.label != null) {
+                    mAllApps.add(detail);
+                    if (detail.isSystem) {
+                        mSystemApps.add(detail);
+                    } else {
+                        mUserApps.add(detail);
+                    }
+                }
             }
+            cursor.close();
+            if (mAllApps.size() == 0) {
+                // sth wrong when read db. still read from package manager
+                queryMain(false);
+                needSyncDB = false;
+            }
+        } else {
+            needSyncDB = false;
+            queryMain(false);
         }
         preparePosition();
-
+        if (needSyncDB) {
+            TaskHelper.execute(syncDBTask);
+        }
     }
 
+    // sync db
+    final AsyncTask<Void, Void, Void> syncDBTask = new AsyncTask<Void, Void, Void>() {
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            for (int i = 0; i < mAllApps.size(); i++) {
+                if (mAllApps.get(i).icon == null) {
+                    Util.queryIcon(mAllApps.get(i), getContentResolver());
+                }
+            }
+            final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+            List<ResolveInfo> apps = mPm.queryIntentActivities(mainIntent, 0);
+            boolean changed = false;
+            for (int i = 0; i < apps.size(); i++) {
+                ResolveInfo info = apps.get(i);
+                String packageName = info.activityInfo.packageName;
+                String versionName;
+                try {
+                    versionName = mPm.getPackageInfo(packageName, 0).versionName;
+                    if ((versionName == null) || (versionName.trim().equals("")))
+                        versionName = String.valueOf(mPm.getPackageInfo(packageName, 0).versionCode);
+                } catch (NameNotFoundException e) {
+                    versionName = e.toString();
+                }
+                boolean found = false;
+
+                for (int j = 0; j < mAllApps.size(); j++) {
+                    if (mAllApps.get(j).packageName.equals(info.activityInfo.packageName)) {
+                        found = true;
+                        if (mAllApps.get(j).versionName.equals(versionName)) {
+                            mAllApps.get(j).found = true;
+                            break;
+                        } else {
+                            changed = true;
+                            mAllApps.remove(j);
+                            mAllApps.add(j, prepareInfo(info, true));
+                            mAllApps.get(j).found = true;
+                            break;
+                        }
+                    }
+                }
+                if (!found) {
+                    changed = true;
+                    UidDetail detail = prepareInfo(info, true);
+                    detail.found = true;
+                    mAllApps.add(detail);
+                    if (detail.isSystem) {
+                        mSystemApps.add(detail);
+                    } else {
+                        mUserApps.add(detail);
+                    }
+                }
+            }
+            int i = 0;
+            while (i < mAllApps.size()) {
+                UidDetail detail = mAllApps.get(i);
+                if (!detail.found) {
+                    changed = true;
+                    mAllApps.remove(i);
+                    if (detail.isSystem) {
+                        mSystemApps.remove(detail);
+                    } else {
+                        mUserApps.remove(detail);
+                    }
+                    getContentResolver().delete(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, UidDetailDbProvider.HASH_CODE + "=" + detail.hashCode, null);
+                } else {
+                    i += 1;
+                }
+            }
+            if (changed) {
+                mHandler.sendEmptyMessage(SYNC_DB_OK);
+            }
+            return null;
+        }
+    };
+
+    private void queryMain(boolean block) {
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> apps = mPm.queryIntentActivities(mainIntent, 0);
+        for (int i = 0; i < apps.size(); i++) {
+            ResolveInfo info = apps.get(i);
+            UidDetail detail = prepareInfo(info, block);
+            mAllApps.add(detail);
+            if (detail.isSystem) {
+                mSystemApps.add(detail);
+            } else {
+                mUserApps.add(detail);
+            }
+        }
+        if (!block) {
+            AsyncTask<Void, Void, Void> queryIconTask = new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... arg0) {
+                    for (int i = 0; i < mAllApps.size(); i++) {
+                        UidDetail detail = mAllApps.get(i);
+                        Util.extractDetail(detail, mPm);
+                        Util.update(detail, getContentResolver());
+                        // release reference for info, so that it can release memory by gc
+                        detail.info = null;
+                    }
+                    mHandler.sendEmptyMessage(QUERY_ICON_OK);
+                    return null;
+                }
+            };
+            TaskHelper.execute(queryIconTask);
+        }
+    }
+
+    private static final int GET_ALL_OK = 0;
+    private static final int SYNC_DB_OK = 1;
+    private static final int QUERY_ICON_OK = 2;
     private class AppHandler extends Handler {
         public void handleMessage(Message msg) {
             switch(msg.what) {
-                case 0:
+                case GET_ALL_OK:
                     mAppListView.setAdapter(mAppListAdapter);
                     mAppListView.setOnScrollListener(mAppListAdapter);
                     break;
-                case 1:
+                case SYNC_DB_OK:
+                    prepareAll();
                     break;
+                case QUERY_ICON_OK:
+                    mAppListAdapter.notifyDataSetChanged();
             }
         }
     }
@@ -310,11 +441,12 @@ public class Home extends Activity implements TextWatcher {
 
     private void removeInfo(String packageName) {
         for (int i = 0; i < mAllApps.size(); i++) {
-            ResolveInfo info = mAllApps.get(i);
-            if (info.activityInfo.packageName.equals(packageName)) {
+            UidDetail detail = mAllApps.get(i);
+            if (detail.packageName.equals(packageName)) {
                 mAllApps.remove(i);
-                mSystemApps.remove(info);
-                mUserApps.remove(info);
+                mSystemApps.remove(detail);
+                mUserApps.remove(detail);
+                getContentResolver().delete(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, UidDetailDbProvider.HASH_CODE + "=" + detail.hashCode, null);
                 break;
             }
         }
@@ -337,12 +469,12 @@ public class Home extends Activity implements TextWatcher {
                 for (int i = 0; i < targetApps.size(); i++) {
                     ResolveInfo info = targetApps.get(i);
                     if (info.activityInfo.packageName.equals(packageName)) {
-                        prepareInfo(info);
-                        mAllApps.add(info);
-                        if ((info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == ApplicationInfo.FLAG_SYSTEM) {
-                            mSystemApps.add(info);
+                        UidDetail detail = prepareInfo(info, true);
+                        mAllApps.add(detail);
+                        if (detail.isSystem) {
+                            mSystemApps.add(detail);
                         } else {
-                            mUserApps.add(info);
+                            mUserApps.add(detail);
                         }
                         prepareAll();
                         break;

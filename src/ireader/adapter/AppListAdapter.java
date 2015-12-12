@@ -5,12 +5,12 @@ import ireader.home.R;
 
 import java.util.List;
 
+import com.android.settings.net.UidDetail;
 import com.android.settings.net.UidDetailProvider;
 import com.way.plistview.PinnedHeaderListView;
 import com.way.plistview.PinnedHeaderListView.PinnedHeaderAdapter;
 
 import android.content.Context;
-import android.content.pm.ResolveInfo;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 public class AppListAdapter extends AppSelectListAdapter implements PinnedHeaderAdapter, OnScrollListener {
 
-    public void setApps(List<ResolveInfo> apps) {
+    public void setApps(List<UidDetail> apps) {
         mAllApps = apps;
     }
     public void setSections(List<String> sections) {
@@ -29,7 +29,7 @@ public class AppListAdapter extends AppSelectListAdapter implements PinnedHeader
     }
     public AppListAdapter(Context context,
             UidDetailProvider provider,
-            List<ResolveInfo> apps,
+            List<UidDetail> apps,
             List<String> sections,
             List<Integer> positions) {
         super(context, provider, apps, sections, positions);

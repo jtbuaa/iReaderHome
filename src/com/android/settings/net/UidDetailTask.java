@@ -2,7 +2,6 @@ package com.android.settings.net;
 
 import base.util.TaskHelper;
 import ireader.home.R;
-import android.content.pm.ResolveInfo;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,43 +14,48 @@ import android.widget.TextView;
 public class UidDetailTask extends AsyncTask<Void, Void, UidDetail> {
     private final UidDetailProvider mProvider;
     private final View mTarget;
-    private final ResolveInfo mInfo;
+    private final UidDetail mInfo;
 
-    private UidDetailTask(UidDetailProvider provider, ResolveInfo info,
+    private UidDetailTask(UidDetailProvider provider, UidDetail info,
             View target) {
         mProvider = provider;
         mInfo = info;
         mTarget = target;
     }
 
-    public static void bindView(UidDetailProvider provider, ResolveInfo info,
+    public static void bindView(UidDetailProvider provider, UidDetail detail,
             View target) {
         final UidDetailTask existing = (UidDetailTask) target.getTag();
         if (existing != null) {
             existing.cancel(false);
         }
 
-        final UidDetail cachedDetail = provider.getUidDetail(info,
-                false);
-        if (cachedDetail != null) {
-            bindView(cachedDetail, target);
+        if (detail.icon != null) {
+            bindView(detail, target);
         } else {
-            UidDetailTask detailTask = new UidDetailTask(provider, info, target);
+            UidDetailTask detailTask = new UidDetailTask(provider, detail, target);
             TaskHelper.execute((AsyncTask)detailTask);
             target.setTag(detailTask);
         }
     }
 
     private static void bindView(UidDetail detail, View target) {
-        final ImageView icon = (ImageView) target
-                .findViewById(R.id.app_icon);
-        final TextView versionName = (TextView) target
-                .findViewById(R.id.version_name);
+        final ImageView icon = (ImageView) target.findViewById(R.id.app_icon);
+        final TextView title = (TextView) target.findViewById(R.id.app_name);
+        final TextView packageName = (TextView) target.findViewById(R.id.package_name);
+        final TextView versionName = (TextView) target.findViewById(R.id.version_name);
         if (detail != null) {
             icon.setImageDrawable(detail.icon);
+            title.setText(detail.label);
+            // show apk name maybe more useful
+            packageName.setText(detail.sourceDir);
+            versionName.setText(detail.versionName);
             versionName.setTag(detail);
         } else {
             icon.setImageDrawable(null);
+            title.setText("");
+            packageName.setText("");
+            versionName.setText("");
             versionName.setTag(null);
         }
     }

@@ -12,7 +12,6 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -24,8 +23,6 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
-import base.util.Util;
-
 import com.android.settings.net.UidDetail;
 import com.android.settings.net.UidDetailProvider;
 import com.android.settings.net.UidDetailTask;
@@ -33,8 +30,8 @@ import com.android.settings.net.UidDetailTask;
 import de.greenrobot.event.EventBus;
 
 public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer, Filterable {
-    protected List<ResolveInfo> mAllApps;
-    public List<ResolveInfo> mResultApps;
+    protected List<UidDetail> mAllApps;
+    public List<UidDetail> mResultApps;
     protected boolean mIsSearching = true;
     private Context mContext;
     private LayoutInflater mInflater;
@@ -44,7 +41,7 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
 
     public AppSelectListAdapter(Context context,
             UidDetailProvider provider,
-            List<ResolveInfo> apps,
+            List<UidDetail> apps,
             List<String> sections,
             List<Integer> positions) {
         mContext = context;
@@ -53,7 +50,7 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
         mProvider = provider;
         mSections = sections;
         mPositions = positions;
-        mResultApps = new ArrayList<ResolveInfo>();
+        mResultApps = new ArrayList<UidDetail>();
     }
 
     @Override
@@ -62,7 +59,7 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
             @SuppressWarnings("unchecked")
             protected void publishResults(CharSequence constraint,
                     FilterResults results) {
-                mResultApps = (ArrayList<ResolveInfo>) results.values;
+                mResultApps = (ArrayList<UidDetail>) results.values;
                 if (results.count > 0) {
                     notifyDataSetChanged();
                 } else {
@@ -79,12 +76,12 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
                 }
                 String format = builder.toString();
                 FilterResults results = new FilterResults();
-                ArrayList<ResolveInfo> appList = new ArrayList<ResolveInfo>();
+                ArrayList<UidDetail> appList = new ArrayList<UidDetail>();
                 if (mAllApps != null && mAllApps.size() > 0) {
-                    for (ResolveInfo info : mAllApps) {
+                    for (UidDetail info : mAllApps) {
                         // match label or pinyin
-                        String label = Util.getLabel(info).toUpperCase();
-                        String pinyin = Util.getPinyin(info);
+                        String label = info.label;
+                        String pinyin = info.pinyin;
                         if (label.matches(format) || label.indexOf(str) > -1 || pinyin.matches(format) || pinyin.indexOf(str) > -1) {
                             appList.add(info);
                         }
@@ -120,22 +117,15 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
             convertView.findViewById(R.id.app_item).setOnClickListener(launchClickListener);
             convertView.findViewById(R.id.version_name).setOnClickListener(detailClickListener);
         }
-        final TextView title = (TextView) convertView.findViewById(R.id.app_name);
-        final TextView versionName = (TextView) convertView.findViewById(R.id.version_name);
-        final TextView packageName = (TextView) convertView.findViewById(R.id.package_name);
-        ResolveInfo info;
+        UidDetail detail;
         if (mIsSearching) {
             if (mResultApps == null || mResultApps.isEmpty() || position >= mResultApps.size()) {
                 return convertView;
             }
-            info = mResultApps.get(position);
+            detail = mResultApps.get(position);
         } else {
-            info = mAllApps.get(position);
+            detail = mAllApps.get(position);
         }
-        title.setText(Util.getLabel(info));
-        // show apk name maybe more useful
-        packageName.setText(info.activityInfo.applicationInfo.sourceDir);
-        versionName.setText(Util.getVersion(info));
 
         TextView group = (TextView) convertView.findViewById(R.id.group_title);
         if (!mIsSearching) {
@@ -149,7 +139,7 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
         } else {
             group.setVisibility(View.GONE);
         }
-        UidDetailTask.bindView(mProvider, info, convertView);
+        UidDetailTask.bindView(mProvider, detail, convertView);
 
         return convertView;
     }
@@ -162,8 +152,7 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
                 return;
             }
             Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.setComponent(new ComponentName(detail.packageName,
-                    detail.className));
+            intent.setComponent(new ComponentName(detail.packageName, detail.className));
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             EventBus.getDefault().post(intent);
             try {
