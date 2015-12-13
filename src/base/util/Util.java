@@ -70,6 +70,9 @@ public abstract class Util {
     }
 
     private static Drawable getDrawableFromBlob(byte[] blob, int width, int height) {
+        if (blob == null) {
+            return null;
+        }
         Bitmap bitmap = Bitmap.createBitmap(
                 width,
                 height,
@@ -96,6 +99,10 @@ public abstract class Util {
     }
 
     private static byte[] getBlobFromIcon(Drawable icon) {
+        if (android.os.Build.VERSION.SDK_INT < 11) {
+            return null;
+        }
+
         Bitmap bitmap = Bitmap.createBitmap(
         icon.getIntrinsicWidth(),
         icon.getIntrinsicHeight(),
