@@ -271,7 +271,6 @@ public class Home extends Activity implements TextWatcher {
         mAllApps = new ArrayList<UidDetail>();
         mSystemApps = new ArrayList<UidDetail>();
         mUserApps = new ArrayList<UidDetail>();
-        boolean needSyncDB = true;// always true if read from db
         mPm = getPackageManager();
         Cursor cursor = getContentResolver().query(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, null, null, null, UidDetailDbProvider.PINYIN);
         if (cursor != null && cursor.moveToFirst()) {
@@ -291,93 +290,78 @@ public class Home extends Activity implements TextWatcher {
             if (mAllApps.size() == 0) {
                 // sth wrong when read db. still read from package manager
                 queryMain(false);
-                needSyncDB = false;
+            } else {
+                syncDB();
             }
         } else {
-            needSyncDB = false;
             queryMain(false);
         }
         preparePosition();
-        if (needSyncDB) {
-            TaskHelper.execute(syncDBTask);
-        }
     }
 
-    // sync db
-    final AsyncTask<Void, Void, Void> syncDBTask = new AsyncTask<Void, Void, Void>() {
-        @Override
-        protected Void doInBackground(Void... arg0) {
-            for (int i = 0; i < mAllApps.size(); i++) {
-                if (mAllApps.get(i).icon == null) {
-                    Util.queryIcon(mAllApps.get(i), getContentResolver());
-                }
+    private void syncDB() {
+        for (int i = 0; i < mAllApps.size(); i++) {
+            if (mAllApps.get(i).icon == null) {
+                Util.queryIcon(mAllApps.get(i), getContentResolver());
             }
-            final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-            List<ResolveInfo> apps = mPm.queryIntentActivities(mainIntent, 0);
-            boolean changed = false;
-            for (int i = 0; i < apps.size(); i++) {
-                ResolveInfo info = apps.get(i);
-                String packageName = info.activityInfo.packageName;
-                String versionName;
-                try {
-                    versionName = mPm.getPackageInfo(packageName, 0).versionName;
-                    if ((versionName == null) || (versionName.trim().equals("")))
-                        versionName = String.valueOf(mPm.getPackageInfo(packageName, 0).versionCode);
-                } catch (NameNotFoundException e) {
-                    versionName = e.toString();
-                }
-                boolean found = false;
-
-                for (int j = 0; j < mAllApps.size(); j++) {
-                    if (mAllApps.get(j).packageName.equals(info.activityInfo.packageName)) {
-                        found = true;
-                        if (mAllApps.get(j).versionName.equals(versionName)) {
-                            mAllApps.get(j).found = true;
-                            break;
-                        } else {
-                            changed = true;
-                            mAllApps.remove(j);
-                            mAllApps.add(j, prepareInfo(info, true));
-                            mAllApps.get(j).found = true;
-                            break;
-                        }
-                    }
-                }
-                if (!found) {
-                    changed = true;
-                    UidDetail detail = prepareInfo(info, true);
-                    detail.found = true;
-                    mAllApps.add(detail);
-                    if (detail.isSystem) {
-                        mSystemApps.add(detail);
-                    } else {
-                        mUserApps.add(detail);
-                    }
-                }
-            }
-            int i = 0;
-            while (i < mAllApps.size()) {
-                UidDetail detail = mAllApps.get(i);
-                if (!detail.found) {
-                    changed = true;
-                    mAllApps.remove(i);
-                    if (detail.isSystem) {
-                        mSystemApps.remove(detail);
-                    } else {
-                        mUserApps.remove(detail);
-                    }
-                    getContentResolver().delete(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, UidDetailDbProvider.HASH_CODE + "=" + detail.hashCode, null);
-                } else {
-                    i += 1;
-                }
-            }
-            if (changed) {
-                mHandler.sendEmptyMessage(SYNC_DB_OK);
-            }
-            return null;
         }
-    };
+        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> apps = mPm.queryIntentActivities(mainIntent, 0);
+        for (int i = 0; i < apps.size(); i++) {
+            ResolveInfo info = apps.get(i);
+            String packageName = info.activityInfo.packageName;
+            String versionName;
+            try {
+                versionName = mPm.getPackageInfo(packageName, 0).versionName;
+                if ((versionName == null) || (versionName.trim().equals("")))
+                    versionName = String.valueOf(mPm.getPackageInfo(packageName, 0).versionCode);
+            } catch (NameNotFoundException e) {
+                versionName = e.toString();
+            }
+            boolean found = false;
+
+            for (int j = 0; j < mAllApps.size(); j++) {
+                if (mAllApps.get(j).packageName.equals(info.activityInfo.packageName)) {
+                    found = true;
+                    if (mAllApps.get(j).versionName.equals(versionName)) {
+                        mAllApps.get(j).found = true;
+                        break;
+                    } else {
+                        mAllApps.remove(j);
+                        mAllApps.add(j, prepareInfo(info, true));
+                        mAllApps.get(j).found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                UidDetail detail = prepareInfo(info, true);
+                detail.found = true;
+                mAllApps.add(detail);
+                if (detail.isSystem) {
+                    mSystemApps.add(detail);
+                } else {
+                    mUserApps.add(detail);
+                }
+            }
+        }
+        int i = 0;
+        while (i < mAllApps.size()) {
+            UidDetail detail = mAllApps.get(i);
+            if (!detail.found) {
+                mAllApps.remove(i);
+                if (detail.isSystem) {
+                    mSystemApps.remove(detail);
+                } else {
+                    mUserApps.remove(detail);
+                }
+                getContentResolver().delete(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, UidDetailDbProvider.HASH_CODE + "=" + detail.hashCode, null);
+            } else {
+                i += 1;
+            }
+        }
+    }
 
     private void queryMain(boolean block) {
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
