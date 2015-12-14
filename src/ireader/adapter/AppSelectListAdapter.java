@@ -126,6 +126,11 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
         } else {
             detail = mAllApps.get(position);
         }
+        final TextView title = (TextView) convertView.findViewById(R.id.app_name);
+        final TextView packageName = (TextView) convertView.findViewById(R.id.package_name);
+        title.setText(detail.label);
+        // show apk name maybe more useful
+        packageName.setText(detail.sourceDir);
 
         TextView group = (TextView) convertView.findViewById(R.id.group_title);
         if (!mIsSearching) {

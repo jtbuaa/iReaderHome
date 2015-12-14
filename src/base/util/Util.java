@@ -84,6 +84,7 @@ public abstract class Util {
 
     public static void update(UidDetail detail, ContentResolver contentResolver) {
         // save to db
+        // comment for when query, nativeExecuteForCursorWindow so slow on T1. so not insert to db, then not query from db
         /*ContentValues updateValue = new ContentValues();
         updateValue.put(UidDetailDbProvider.ICON_WIDTH, detail.icon.getIntrinsicWidth());
         updateValue.put(UidDetailDbProvider.ICON_HEIGHT, detail.icon.getIntrinsicHeight());

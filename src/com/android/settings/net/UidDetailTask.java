@@ -41,20 +41,13 @@ public class UidDetailTask extends AsyncTask<Void, Void, UidDetail> {
 
     private static void bindView(UidDetail detail, View target) {
         final ImageView icon = (ImageView) target.findViewById(R.id.app_icon);
-        final TextView title = (TextView) target.findViewById(R.id.app_name);
-        final TextView packageName = (TextView) target.findViewById(R.id.package_name);
         final TextView versionName = (TextView) target.findViewById(R.id.version_name);
         if (detail != null) {
             icon.setImageDrawable(detail.icon);
-            title.setText(detail.label);
-            // show apk name maybe more useful
-            packageName.setText(detail.sourceDir);
             versionName.setText(detail.versionName);
             versionName.setTag(detail);
         } else {
             icon.setImageDrawable(null);
-            title.setText("");
-            packageName.setText("");
             versionName.setText("");
             versionName.setTag(null);
         }
