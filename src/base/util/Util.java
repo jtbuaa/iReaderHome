@@ -83,7 +83,8 @@ public abstract class Util {
     }
 
     public static void update(UidDetail detail, ContentResolver contentResolver) {
-        ContentValues updateValue = new ContentValues();
+        // save to db
+        /*ContentValues updateValue = new ContentValues();
         updateValue.put(UidDetailDbProvider.ICON_WIDTH, detail.icon.getIntrinsicWidth());
         updateValue.put(UidDetailDbProvider.ICON_HEIGHT, detail.icon.getIntrinsicHeight());
         updateValue.put(UidDetailDbProvider.ICON, getBlobFromIcon(detail.icon));
@@ -95,7 +96,7 @@ public abstract class Util {
         updateValue.put(UidDetailDbProvider.SOURCE_DIR, detail.sourceDir);
         updateValue.put(UidDetailDbProvider.IS_SYSTEM, detail.isSystem);
         updateValue.put(UidDetailDbProvider.HASH_CODE, detail.hashCode);
-        contentResolver.update(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, updateValue, null, null);
+        contentResolver.update(UidDetailDbProvider.CONTENT_URI_APP_DETAIL, updateValue, null, null);*/
     }
 
     private static byte[] getBlobFromIcon(Drawable icon) {
