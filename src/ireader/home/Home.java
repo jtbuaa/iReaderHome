@@ -179,7 +179,9 @@ public class Home extends Activity implements TextWatcher {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getRepeatCount() == 0) {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
-                if (mAppContainer.getVisibility() == View.VISIBLE) {
+                if (mShadowView.getVisibility() == View.VISIBLE) {
+                    stopSearchBarAnimation();
+                } else if (mAppContainer.getVisibility() == View.VISIBLE) {
                     if (mIntent != null) {
                         try {
                             startActivity(mIntent);
