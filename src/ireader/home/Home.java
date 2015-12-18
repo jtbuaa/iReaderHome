@@ -5,6 +5,7 @@ import ireader.adapter.AppListAdapter;
 import ireader.adapter.AppSelectListAdapter;
 import ireader.provider.UidDetailDbProvider;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -551,20 +552,49 @@ public class Home extends Activity implements TextWatcher {
         mInputManager.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
     }
 
+    MenuItem mAllMenu, mSystemMenu, mUserMenu;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, APP_ALL, 0, "all");
-        menu.add(0, APP_SYSTEM, 0, "system");
-        menu.add(0, APP_USER, 0, "user");
+        setIconEnable(menu, true);
+
+        mAllMenu = menu.add(0, APP_ALL, 0, "all");
+        mAllMenu.setIcon(R.drawable.yes);
+        mSystemMenu = menu.add(0, APP_SYSTEM, 0, "system");
+        mUserMenu = menu.add(0, APP_USER, 0, "user");
         //menu.add(0, APP_GRIDVIEW, 0, "GridView");
         return super.onCreateOptionsMenu(menu);
     }
 
+    private void setIconEnable(Menu menu, boolean enable)
+    {
+        try {
+            Class<?> clazz = Class.forName("com.android.internal.view.menu.MenuBuilder");
+            Method m = clazz.getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            m.setAccessible(true);
+            m.invoke(menu, enable);
+        } catch (Exception e) {}
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (mAppGroup != item.getItemId()) {
-            mAppGroup = item.getItemId();
-            prepareAll();
+        if (item.equals(mAllMenu) || item.equals(mSystemMenu) || item.equals(mUserMenu)) {
+            if (item.equals(mAllMenu)) {
+                mAllMenu.setIcon(R.drawable.yes);
+                mSystemMenu.setIcon(null);
+                mUserMenu.setIcon(null);
+            } else if (item.equals(mSystemMenu)) {
+                mAllMenu.setIcon(null);
+                mSystemMenu.setIcon(R.drawable.yes);
+                mUserMenu.setIcon(null);
+            } else if (item.equals(mUserMenu)) {
+                mAllMenu.setIcon(null);
+                mSystemMenu.setIcon(null);
+                mUserMenu.setIcon(R.drawable.yes);
+            }
+            if (mAppGroup != item.getItemId()) {
+                mAppGroup = item.getItemId();
+                prepareAll();
+            }
         }
         return super.onOptionsItemSelected(item);
     }
