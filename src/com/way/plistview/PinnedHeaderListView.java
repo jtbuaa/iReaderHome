@@ -1,6 +1,8 @@
 
 package com.way.plistview;
 
+import com.baoyz.swipemenulistview.SwipeMenuListView;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
@@ -8,7 +10,7 @@ import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-public class PinnedHeaderListView extends ListView {
+public class PinnedHeaderListView extends SwipeMenuListView {
 
     public interface PinnedHeaderAdapter {
         public static final int PINNED_HEADER_GONE = 0;
