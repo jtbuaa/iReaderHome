@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical" >
 
     <TextView
@@ -15,7 +15,8 @@
         android:paddingRight="28dip"
         android:paddingTop="5.0dip"
         android:textColor="#ff2f2f2f"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:visibility="gone" />
 
     <RelativeLayout
         android:id="@+id/app_item"
@@ -40,10 +41,11 @@
         <LinearLayout
             android:id="@+id/app_stuf"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="120dip"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@id/app_icon"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:paddingLeft="5dip" >
 
             <TextView
                 android:id="@+id/version_name"
@@ -79,9 +81,10 @@
         <TextView
             android:id="@+id/app_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/app_icon"
+            android:gravity="center_vertical"
             android:paddingLeft="50dip"
             android:singleLine="true"
             android:textColor="#FF000000"

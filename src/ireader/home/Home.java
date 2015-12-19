@@ -48,14 +48,17 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -173,7 +176,8 @@ public class Home extends Activity implements TextWatcher {
                 // set item width
                 openItem.setWidth(dp2px(90));
                 // set item title
-                openItem.setTitle("Open");
+                //openItem.setTitle("Open");
+                openItem.setIcon(R.drawable.ic_setting);
                 // set item title fontsize
                 openItem.setTitleSize(18);
                 // set item title font color
@@ -198,26 +202,51 @@ public class Home extends Activity implements TextWatcher {
         // set creator
         mAppListView.setMenuCreator(creator);
 
-        mAppListView.setSwipeDirection(SwipeMenuListView.DIRECTION_RIGHT);
-
         // step 2. listener item click event
         mAppListView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-                //ApplicationInfo item = mAppListView.get(position);
+                UidDetail detail = (UidDetail) mAppListAdapter.getItem(position);
+                Uri uri = Uri.fromParts("package", detail.packageName , null);
+                Intent intent = null;
                 switch (index) {
                     case 0:
-                        // open
-                        // open(item);
+                        // setting
+                        intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, uri);
                         break;
                     case 1:
                         // delete
-                        // delete(item);
-                        // mAppListView.remove(position);
-                        // mAdapter.notifyDataSetChanged();
+                        intent = new Intent(Intent.ACTION_DELETE, uri);
                         break;
                 }
+                try {
+                    startActivity(intent);
+                } catch(ActivityNotFoundException e) {}
                 return false;
+            }
+        });
+
+        // set SwipeListener
+        mAppListView.setOnSwipeListener(new SwipeMenuListView.OnSwipeListener() {
+            @Override
+            public void onSwipeStart(int position) {
+            }
+
+            @Override
+            public void onSwipeEnd(int position) {
+            }
+        });
+
+        // set MenuStateChangeListener
+        mAppListView.setOnMenuStateChangeListener(new SwipeMenuListView.OnMenuStateChangeListener() {
+            @Override
+            public void onMenuOpen(int position) {
+                mLetter.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onMenuClose(int position) {
+                mLetter.setVisibility(View.VISIBLE);
             }
         });
 
@@ -247,6 +276,7 @@ public class Home extends Activity implements TextWatcher {
     public void onResume() {
         super.onResume();
         stopService(new Intent(this, Dragger.class));
+        mLetter.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -631,7 +661,7 @@ public class Home extends Activity implements TextWatcher {
         setIconEnable(menu, true);
 
         mAllMenu = menu.add(0, APP_ALL, 0, "all");
-        mAllMenu.setIcon(R.drawable.yes);
+        mAllMenu.setIcon(R.drawable.ic_yes);
         mSystemMenu = menu.add(0, APP_SYSTEM, 0, "system");
         mUserMenu = menu.add(0, APP_USER, 0, "user");
         //menu.add(0, APP_GRIDVIEW, 0, "GridView");
@@ -652,17 +682,17 @@ public class Home extends Activity implements TextWatcher {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.equals(mAllMenu) || item.equals(mSystemMenu) || item.equals(mUserMenu)) {
             if (item.equals(mAllMenu)) {
-                mAllMenu.setIcon(R.drawable.yes);
+                mAllMenu.setIcon(R.drawable.ic_yes);
                 mSystemMenu.setIcon(null);
                 mUserMenu.setIcon(null);
             } else if (item.equals(mSystemMenu)) {
                 mAllMenu.setIcon(null);
-                mSystemMenu.setIcon(R.drawable.yes);
+                mSystemMenu.setIcon(R.drawable.ic_yes);
                 mUserMenu.setIcon(null);
             } else if (item.equals(mUserMenu)) {
                 mAllMenu.setIcon(null);
                 mSystemMenu.setIcon(null);
-                mUserMenu.setIcon(R.drawable.yes);
+                mUserMenu.setIcon(R.drawable.ic_yes);
             }
             if (mAppGroup != item.getItemId()) {
                 mAppGroup = item.getItemId();
