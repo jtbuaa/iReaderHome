@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.SectionIndexer;
@@ -26,10 +25,11 @@ import android.widget.TextView;
 import com.android.settings.net.UidDetail;
 import com.android.settings.net.UidDetailProvider;
 import com.android.settings.net.UidDetailTask;
+import com.baoyz.swipemenulistview.BaseSwipListAdapter;
 
 import de.greenrobot.event.EventBus;
 
-public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer, Filterable {
+public class AppSelectListAdapter extends BaseSwipListAdapter implements SectionIndexer, Filterable {
     protected List<UidDetail> mAllApps;
     public List<UidDetail> mResultApps;
     protected boolean mIsSearching = true;
@@ -113,7 +113,7 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.app_item, parent, false);
+            convertView = mInflater.inflate(R.layout.app_item, null, false);
             convertView.findViewById(R.id.app_item).setOnClickListener(launchClickListener);
             convertView.findViewById(R.id.version_name).setOnClickListener(detailClickListener);
         }
@@ -133,16 +133,18 @@ public class AppSelectListAdapter extends BaseAdapter implements SectionIndexer,
         packageName.setText(detail.sourceDir);
 
         TextView group = (TextView) convertView.findViewById(R.id.group_title);
-        if (!mIsSearching) {
-            int section = getSectionForPosition(position);
-            if (getPositionForSection(section) == position) {
-                group.setVisibility(View.VISIBLE);
-                group.setText(mSections.get(section));
+        if (group != null) {
+            if (!mIsSearching) {
+                int section = getSectionForPosition(position);
+                if (getPositionForSection(section) == position) {
+                    group.setVisibility(View.VISIBLE);
+                    group.setText(mSections.get(section));
+                } else {
+                    group.setVisibility(View.GONE);
+                }
             } else {
                 group.setVisibility(View.GONE);
             }
-        } else {
-            group.setVisibility(View.GONE);
         }
         UidDetailTask.bindView(mProvider, detail, convertView);
 

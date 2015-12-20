@@ -58,7 +58,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -70,13 +69,12 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ListView;
 
 public class Home extends Activity implements TextWatcher {
 
     private List<UidDetail> mAllApps, mSystemApps, mUserApps, mCurrentApps;
     private PinnedHeaderListView mAppListView;
-    private ListView mSearchListView;
+    private SwipeMenuListView mSearchListView;
     private View mAppContainer, mSearchContainer;
     private View mShadowView;
     private AnimatorSet mStartSearchAnimatorSet, mStopSearchAnimatorSet;
@@ -100,12 +98,15 @@ public class Home extends Activity implements TextWatcher {
     private static final int APP_USER = 2;
     //private static final int APP_GRIDVIEW = 3;
     private int mAppGroup = APP_ALL;
+
+    private static final int MENU_POSITION = 1;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main);
         mAppListView = (PinnedHeaderListView) findViewById(R.id.apps);
+        mAppListView.setMenuPosition(MENU_POSITION);
         mAppListView.setEmptyView(findViewById(R.id.app_list_empty));
         AsyncTask<Void, Void, Void> firstTask = new AsyncTask<Void, Void, Void>() {
             @Override
@@ -152,7 +153,8 @@ public class Home extends Activity implements TextWatcher {
 
         mAppContainer = findViewById(R.id.app_content_container);
         mSearchContainer = findViewById(R.id.search_content_container);
-        mSearchListView = (ListView) findViewById(R.id.search_list);
+        mSearchListView = (SwipeMenuListView) findViewById(R.id.search_list);
+        mSearchListView.setMenuPosition(MENU_POSITION);
         mSearchListView.setEmptyView(findViewById(R.id.search_empty));
 
         mShadowView = findViewById(R.id.shadow_view);
