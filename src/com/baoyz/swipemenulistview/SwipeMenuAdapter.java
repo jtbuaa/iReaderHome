@@ -48,8 +48,8 @@ public class SwipeMenuAdapter implements WrapperListAdapter,
     public View getView(int position, View convertView, ViewGroup parent) {
         SwipeMenuLayout layout = null;
         ViewGroup viewGroup = null;
-        View contentView = mAdapter.getView(position, convertView, parent);
         if (convertView == null) {
+            View contentView = mAdapter.getView(position, convertView, parent);
             viewGroup = (ViewGroup) contentView;
             if (mPosition >= 0 && mPosition < viewGroup.getChildCount()) {
                 contentView = viewGroup.getChildAt(mPosition);
@@ -87,6 +87,10 @@ public class SwipeMenuAdapter implements WrapperListAdapter,
             if (layout != null) {
                 layout.closeMenu();
                 layout.setPosition(position);
+                mAdapter.getView(position, layout.getContentView(), parent);
+            } else {
+                // must ensure invoke mAdapter.getView()
+                mAdapter.getView(position, convertView, parent);
             }
         }
         if (mAdapter instanceof BaseSwipListAdapter) {

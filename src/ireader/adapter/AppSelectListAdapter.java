@@ -133,6 +133,14 @@ public class AppSelectListAdapter extends BaseSwipListAdapter implements Section
         packageName.setText(detail.sourceDir);
 
         TextView group = (TextView) convertView.findViewById(R.id.group_title);
+        if (group == null) {
+            View parentView = (View) convertView.getParent();
+            group = (TextView) parentView.findViewById(R.id.group_title);
+            if (group == null) {
+                parentView = (View) parentView.getParent();
+                group = (TextView) parentView.findViewById(R.id.group_title);
+            }
+        }
         if (!mIsSearching) {
             int section = getSectionForPosition(position);
             if (getPositionForSection(section) == position) {
