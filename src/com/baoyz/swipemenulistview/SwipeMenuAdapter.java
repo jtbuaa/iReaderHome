@@ -72,10 +72,10 @@ public class SwipeMenuAdapter implements WrapperListAdapter,
                 viewGroup = layout;
             }
         } else {
+            viewGroup = (ViewGroup) convertView;
             if (convertView instanceof SwipeMenuLayout) {
                 layout = (SwipeMenuLayout)convertView;
             } else {
-                viewGroup = (ViewGroup) convertView;
                 for (int i = 0; i < viewGroup.getChildCount(); i++) {
                     View view = viewGroup.getChildAt(i);
                     if (view instanceof SwipeMenuLayout) {
