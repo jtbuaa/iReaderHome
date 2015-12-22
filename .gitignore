@@ -1,2 +1,10 @@
-bin/
-gen/
+.idea/
+.gradle
+/bin/
+/app/src/main/libs/
+/app/src/main/obj/
+/app/build/
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/build
